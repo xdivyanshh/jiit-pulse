@@ -1,0 +1,9 @@
+{
+  "monday": {
+    "10:00": "Mathematics",
+    "11:00": "Physics"
+  },
+  "tuesday": {
+    "09:00": "Chemistry Lab"
+  }
+}
