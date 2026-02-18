@@ -1,0 +1,54 @@
+{
+  "batches_to_extract": [
+    "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10",
+    "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", 
+    "B11", "B12", "B13", "B14", "B15", "B16", "B17", "B18", "B19"
+  ],
+  "time_slots": {
+    "1": "09:00 AM - 09:50 AM",
+    "2": "10:00 AM - 10:50 AM",
+    "3": "11:00 AM - 11:50 AM",
+    "4": "12:00 PM - 12:50 PM",
+    "5": "01:00 PM - 01:50 PM",
+    "6": "02:00 PM - 02:50 PM",
+    "7": "03:00 PM - 03:50 PM",
+    "8": "04:00 PM - 04:50 PM"
+  },
+  "subject_map": {
+    "CI121": "Software Development Fundamentals-II",
+    "CI111": "Software Development Fundamentals",
+    "CS121": "Software Development Fundamentals Lab",
+    "B11CI121": "Fundamentals of Computers & Programming",
+    "MA211": "Mathematics-2",
+    "MA111": "Mathematics-2",
+    "MA212": "Basic Mathematics-2",
+    "PH211": "Physics-2",
+    "PH212": "Biophysical Techniques",
+    "PH271": "Physics Lab-2",
+    "HS111": "Universal Human Values",
+    "GE112": "Workshop",
+    "B15CI121": "Computers Programming Lab",
+    "EC111": "Basic Electronics"
+  },
+  "faculty_map": {
+    "AB": "Dr. Ankur Bhardwaj", "BB": "Dr. Badri Bajaj", "LK": "Prof. Lokendra Kumar", "NS": "Dr. Neha Singhal", "RSC": "Dr. Ram Surat Chauhan", "SP": "Dr. Shikha Pandey",
+    "ABH": "Dr. Ashish Batnagar", "BCJ": "Dr. Bhubesh Chander Joshi", "MAY": "MAYURI GUPTA", "NSH": "Ms. Nisha", "RSH": "Dr. Richa Sharma", "SPP": "Prof. S.P. Purohit",
+    "ACH": "Aanchal Agarwal", "BVI": "Bhuvaneshwari S", "MB": "Dr. Monali Bhattacharya", "NSK": "Dr. Nisha Shukla", "SHU": "Dr. Shubhayan", "SWET": "Mr. Shwetabh Singh",
+    "AJS": "Dr. Ankita Jaiswal", "CDN": "Mr. Chandan Kumar", "MDU": "Dr Mohua Dutta", "NTN": "Dr. Nitin Muchal", "PAR": "PARMEET KAUR SODHI", "SGL": "Dr. Shashank Goel",
+    "ALJ": "Dr. Alok Joshi", "DCS": "Dr. Dinesh Bisht", "MEE": "MEENAL JAIN", "MGR": "MEGHA RATHI", "PAT": "Dr. Pato Kumari", "SHB": "SULABH TYAGI",
+    "ALK": "ALKA SINGHAL", "DGA": "Dr. Diksha Gupta", "MJ": "Dr. Madhu Jain", "PC": "Dr. Papia Chowdhury", "SHP": "SHARDHA PORWAL", "VK": "Dr. Vineet Khandelwal",
+    "AM": "ASHISH MISHRA", "DIN": "Dr. Dinesh Tripathi", "MKB": "Dr. Manish Kumar Bansal", "PK": "PRAKASH KUMAR", "SHR": "SHWETA RANI", "VKH": "Dr. Vijay Khare",
+    "AMR": "Amrita Kaul", "EKS": "Dr. Ekta Singh", "MKC": "Dr. Manoj Kumar", "PRK": "PURTEE KOHLI", "SKU": "Dr Shikha Kumari", "AN": "Dr. Anuj Bhardwaj",
+    "GA": "Dr. Gaurav Agrawal", "GGL": "Dr. Gorav Gugliani", "MN": "Mandeep Narula", "PRV": "POTUKUCHI RAGHU VAMSI", "SLM": "Dr. Salman Khan", "VRT": "Dr. Vaibhav Rawoot",
+    "ANK": "Dr. Arpita Nayek", "GPK": "Dr. Guru Prasad Kadam", "MPA": "Dr. Mohd. Prawesh Alam", "PSO": "PRATEEK KUMAR SONI", "SMK": "Dr. Smriti Kalia", "YG": "Dr. Yogesh Gupta",
+    "ANP": "ANUPAMA PADHA", "HA": "Dr. Himanshu Agarwal", "MSD": "Dr. Mohd Shad", "PTM": "Preeti Mittal", "SMS": "SUMESHWAR SINGH", "YN": "Dr Yogita Naruka",
+    "ANU": "Dr. Anuraj Panwar", "HEM": "Dr. Hemat Bhatt", "MTR": "Dr. Manoj Tripathi", "RAV": "Dr. Ravi Gupta", "SND": "Dr. Sandeep Mishra", "AP": "Prof. Anirban Pathak",
+    "HK": "Dr. Harleen Kaur", "NAR": "Dr. Narinder Kaur", "RIG": "Dr. Richa Gupta", "SNP": "Dr. Satyanarayan Patel", "SHWETA": "Prof. Shweta Srivastav",
+    "APJ": "ARPITA JADHAV BHATT", "HPT": "Dr. Himani Pant", "NG": "Dr. Navendu Goswami", "RKD": "Prof. Rakesh Kumar Dwivedi", "SOS": "SONAL SAURABH", "APR": "AMANPREET KAUR",
+    "HZR": "Dr. Hira Zaheer", "NHI": "Nidhi Tewari", "RKG": "Dr. Radha Krishan Gopal", "SRG": "SARISHTY GUPTA", "ASA": "ANITA SAHOO", "IMR": "Imran Rasheed",
+    "NIS": "Dr. Nibha Sinha", "RMD": "Dr. Ramanand Basuriya", "SUD": "SUMA DAWN", "ATI": "Dr. Ayush Tripathi", "INC": "Dr. Indrani Chakarborty", "NIY": "NIYATI AGGRAWAL",
+    "ROH": "ROHIT KUMAR SONY", "TNV": "TANVI GAUTAM", "AV": "Dr. Ankisha Vijay", "JYO": "Jyoti Deshwal Yadav", "NKS": "Dr. Navneet K. Sharma", "RRJ": "Dr. RituRaj",
+    "AVR": "ANKITA VERMA", "KP": "KAVITA PANDEY", "NSA": "NEETU SARDANA", "RSA": "Dr. Rupali Srivastava", "AW": "ANKITA", "KRL": "K.RAJALAKSHMI",
+    "RTK": "RITIKA CHAUDHARY", "NTS": "Mr. Nitesh Singh", "SDC": "Dr. Sandeep Chokker", "EKY": "Dr. Ekta Yadav"
+  }
+}
