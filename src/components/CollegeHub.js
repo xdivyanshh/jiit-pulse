@@ -207,7 +207,7 @@ export default function CollegeHub({ campus, onBack }) {
         subject: "Lunch Break",
         time: "12:00 PM - 02:00 PM",
         type: "Break",
-        location: "Cafeteria",
+        location: "Cafeteria/Mess",
         professor: null
       });
     }
