@@ -480,7 +480,7 @@ export default function CollegeHub({ campus, onBack }) {
                             {cls.professor && (
                               <div className="flex items-center gap-1.5">
                                 <User className="w-3 h-3 text-zinc-600" />
-                                <span className="truncate max-w-[100px]">{cls.professor}</span>
+                                <span>{cls.professor}</span>
                               </div>
                             )}
                           </div>
