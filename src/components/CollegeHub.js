@@ -192,13 +192,27 @@ export default function CollegeHub({ campus, onBack }) {
   const rawDayClasses = actualSchedule[currentDay] || [];
 
   // Normalize classes to ensure 'time' property exists (compatibility with new JSON format)
-  const currentDayClasses = rawDayClasses.map((cls, idx) => ({
-    ...cls,
-    id: cls.id || `cls-${idx}`,
-    time: cls.time || (cls.start && cls.end ? `${cls.start} - ${cls.end}` : "00:00 AM - 00:00 AM"),
-    location: cls.venue || cls.location || "TBA",
-    professor: cls.teacher || cls.professor
-  }));
+  const currentDayClasses = React.useMemo(() => {
+    const classes = rawDayClasses.map((cls, idx) => ({
+      ...cls,
+      id: cls.id || `cls-${idx}`,
+      time: cls.time || (cls.start && cls.end ? `${cls.start} - ${cls.end}` : "00:00 AM - 00:00 AM"),
+      location: cls.venue || cls.location || "TBA",
+      professor: cls.teacher || cls.professor
+    }));
+
+    if (classes.length > 0) {
+      classes.push({
+        id: "lunch-break",
+        subject: "Lunch Break",
+        time: "12:00 PM - 02:00 PM",
+        type: "Break",
+        location: "Cafeteria",
+        professor: null
+      });
+    }
+    return classes;
+  }, [rawDayClasses]);
 
   // Time & Day Logic
   useEffect(() => {
@@ -507,6 +521,9 @@ export default function CollegeHub({ campus, onBack }) {
                        } else if (first.type === "P" || first.type === "Lab" || first.type === "Practical") {
                          typeLabel = "Lab";
                          textColor = "text-rose-400";
+                       } else if (first.type === "Break") {
+                         typeLabel = "Break";
+                         textColor = "text-amber-400";
                        }
                     }
 
@@ -542,7 +559,7 @@ export default function CollegeHub({ campus, onBack }) {
                             ) : (
                                 <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500">
                                   <div className="flex items-center gap-1.5">
-                                    <MapPin className="w-3 h-3 text-zinc-600" />
+                                    {typeLabel === "Break" ? <Coffee className="w-3 h-3 text-amber-500" /> : <MapPin className="w-3 h-3 text-zinc-600" />}
                                     <span>{location}</span>
                                   </div>
                                   {professor && (
