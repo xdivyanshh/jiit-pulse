@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import LandingPage from '../components/LandingPage';
 import CollegeHub from '../components/CollegeHub';
-import { scheduleData128 as allBatches128 } from '../data/schedule128';
+import allBatches128 from '../../classes.json';
+import { getStudentProfile } from '../utils/studentProfile';
+import { requestNotificationPermission, checkScheduleAndNotify } from '../utils/notificationService';
 
 export default function Page() {
   // State to track which campus the user has selected (null, '62', or '128')
@@ -14,6 +16,23 @@ export default function Page() {
   // This ensures the Landing Page is always shown first.
   useEffect(() => {
     setIsLoaded(true);
+    
+    // Check for saved profile to auto-redirect
+    const profile = getStudentProfile();
+    if (profile && profile.campus) {
+      setSelectedCampus(profile.campus);
+    }
+
+    // Initialize notifications
+    requestNotificationPermission();
+    const interval = setInterval(() => {
+      const currentProfile = getStudentProfile();
+      if (currentProfile) {
+        checkScheduleAndNotify(currentProfile, allBatches128);
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleSelect = (campus) => {
