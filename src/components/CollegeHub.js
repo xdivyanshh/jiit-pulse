@@ -107,6 +107,35 @@ export default function CollegeHub({ campus, onBack }) {
 
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
+
+  // --- PERSISTENCE: LOAD PREFERENCES ---
+  useEffect(() => {
+    try {
+      const savedCourse = localStorage.getItem(`jiit_${campus}_course`);
+      const savedSemester = localStorage.getItem(`jiit_${campus}_semester`);
+      const savedBatch = localStorage.getItem(`jiit_${campus}_batch`);
+
+      if (savedCourse) setSelectedCourse(savedCourse);
+      if (savedSemester) setSelectedSemester(savedSemester);
+      if (savedBatch) setSelectedBatch(savedBatch);
+    } catch (error) {
+      console.error("Error loading preferences:", error);
+    }
+  }, [campus]);
+
+  // --- PERSISTENCE: SAVE PREFERENCES ---
+  useEffect(() => {
+    if (selectedCourse) localStorage.setItem(`jiit_${campus}_course`, selectedCourse);
+  }, [selectedCourse, campus]);
+
+  useEffect(() => {
+    if (selectedSemester) localStorage.setItem(`jiit_${campus}_semester`, selectedSemester);
+  }, [selectedSemester, campus]);
+
+  useEffect(() => {
+    if (selectedBatch) localStorage.setItem(`jiit_${campus}_batch`, selectedBatch);
+  }, [selectedBatch, campus]);
 
   // Auto-select Course
   useEffect(() => {
@@ -140,9 +169,6 @@ export default function CollegeHub({ campus, onBack }) {
       return courseLabel === selectedCourse && semLabel === selectedSemester;
     });
   }, [allBatches, selectedCourse, selectedSemester]);
-
-  // Batch State
-  const [selectedBatch, setSelectedBatch] = useState("");
 
   // Auto-select first batch when filtered list changes
   useEffect(() => {
@@ -419,7 +445,17 @@ export default function CollegeHub({ campus, onBack }) {
                   <p className="text-sm font-medium">No classes scheduled</p>
                 </div>
               ) : (
-                [...currentDayClasses].sort((a, b) => {
+                (() => {
+                  // Group classes by time to handle electives/overlaps
+                  const grouped = currentDayClasses.reduce((acc, cls) => {
+                    const key = cls.time;
+                    if (!acc[key]) acc[key] = [];
+                    acc[key].push(cls);
+                    return acc;
+                  }, {});
+
+                  // Sort time slots
+                  const sortedTimes = Object.keys(grouped).sort((a, b) => {
                     const timeToMin = (t) => {
                       if (!t) return 0;
                       const parts = t.split(" - ");
@@ -432,61 +468,98 @@ export default function CollegeHub({ campus, onBack }) {
                       if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
                       return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
                     };
-                    return timeToMin(a.time) - timeToMin(b.time);
-                }).map((cls, index) => {
-                  // Determine type label and color
-                  let typeLabel = cls.type;
-                  let textColor = "text-zinc-400";
+                    return timeToMin(a) - timeToMin(b);
+                  });
 
-                  if (cls.type === "L" || cls.type === "Lecture") {
-                    typeLabel = "Lecture";
-                    textColor = "text-blue-400";
-                  } else if (cls.type === "T" || cls.type === "Tutorial") {
-                    typeLabel = "Tutorial";
-                    textColor = "text-emerald-400";
-                  } else if (cls.type === "P" || cls.type === "Lab" || cls.type === "Practical") {
-                    typeLabel = "Lab";
-                    textColor = "text-rose-400";
-                  } else if (cls.type === "Break") {
-                    typeLabel = "Break";
-                    textColor = "text-emerald-400";
-                  }
+                  return sortedTimes.map((time, index) => {
+                    const classes = grouped[time];
+                    const isMulti = classes.length > 1;
+                    const first = classes[0]; // Representative class
+                    
+                    // Check if this group contains the active class
+                    const isActive = classes.some(c => c.id === statusInfo.activeId);
 
-                  const isBreak = typeLabel === "Break";
-                  const isActive = statusInfo.activeId === cls.id;
-                  const [startTime, endTime] = cls.time.split(" - ");
-                  return (
-                    <div key={index} className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group ${isActive ? (campus === '128' ? 'bg-zinc-900/80 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' : 'bg-zinc-900/80 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)]') : 'bg-zinc-900/30 border-white/5 hover:bg-zinc-900 hover:border-white/10'}`}>
-                      <div className="flex">
-                        <div className="w-24 p-3 flex flex-col items-center justify-center border-r border-white/5 bg-black/20 shrink-0">
-                          <span className="text-xs font-bold text-white whitespace-nowrap">{startTime}</span>
-                          <span className="text-[10px] text-zinc-600 my-0.5">↓</span>
-                          <span className="text-xs font-medium text-zinc-500 whitespace-nowrap">{endTime}</span>
-                        </div>
-                        <div className="flex-1 p-4 pl-5">
-                          <div className="flex justify-between items-start mb-1">
-                             <span className={`text-[10px] font-bold uppercase tracking-wider ${textColor}`}>{typeLabel}</span>
-                             {isActive && <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${campus === '128' ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>}
+                    // Determine display info
+                    let subject = first.subject;
+                    let typeLabel = first.type;
+                    let location = first.location;
+                    let professor = first.professor;
+                    let textColor = "text-zinc-400";
+
+                    if (isMulti) {
+                       // It's an elective slot or collision
+                       const categories = [...new Set(classes.map(c => c.category).filter(Boolean))];
+                       const commonCategory = categories.length > 0 ? categories.join(" / ") : "Electives";
+                       
+                       subject = `${commonCategory} (Select 1)`;
+                       typeLabel = "Elective";
+                       textColor = "text-purple-400";
+                       location = "Multiple Venues";
+                       professor = "Multiple Faculty";
+                    } else {
+                       // Single class formatting
+                       if (first.type === "L" || first.type === "Lecture") {
+                         typeLabel = "Lecture";
+                         textColor = "text-blue-400";
+                       } else if (first.type === "T" || first.type === "Tutorial") {
+                         typeLabel = "Tutorial";
+                         textColor = "text-emerald-400";
+                       } else if (first.type === "P" || first.type === "Lab" || first.type === "Practical") {
+                         typeLabel = "Lab";
+                         textColor = "text-rose-400";
+                       }
+                    }
+
+                    const [startTime, endTime] = time.split(" - ");
+
+                    return (
+                      <div key={index} className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group ${isActive ? (campus === '128' ? 'bg-zinc-900/80 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' : 'bg-zinc-900/80 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)]') : 'bg-zinc-900/30 border-white/5 hover:bg-zinc-900 hover:border-white/10'}`}>
+                        <div className="flex">
+                          <div className="w-24 p-3 flex flex-col items-center justify-center border-r border-white/5 bg-black/20 shrink-0">
+                            <span className="text-xs font-bold text-white whitespace-nowrap">{startTime}</span>
+                            <span className="text-[10px] text-zinc-600 my-0.5">↓</span>
+                            <span className="text-xs font-medium text-zinc-500 whitespace-nowrap">{endTime}</span>
                           </div>
-                          <h4 className={`text-base font-bold leading-tight mb-1 transition-colors ${isActive ? 'text-white' : 'text-zinc-200'}`}>{cls.subject}</h4>
-                          <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500">
-                            <div className="flex items-center gap-1.5">
-                              {isBreak ? <Coffee className="w-3 h-3 text-emerald-500" /> : <MapPin className="w-3 h-3 text-zinc-600" />}
-                              <span>{cls.location}</span>
+                          <div className="flex-1 p-4 pl-5">
+                            <div className="flex justify-between items-start mb-1">
+                               <span className={`text-[10px] font-bold uppercase tracking-wider ${textColor}`}>{typeLabel}</span>
+                               {isActive && <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${campus === '128' ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>}
                             </div>
-                            {cls.professor && (
-                              <div className="flex items-center gap-1.5">
-                                <User className="w-3 h-3 text-zinc-600" />
-                                <span>{cls.professor}</span>
-                              </div>
+                            <h4 className={`text-base font-bold leading-tight mb-1 transition-colors ${isActive ? 'text-white' : 'text-zinc-200'}`}>{subject}</h4>
+                            
+                            {isMulti ? (
+                                <div className="mt-3 space-y-1.5">
+                                    {classes.slice(0, 3).map((c, i) => (
+                                        <div key={i} className="text-[11px] text-zinc-500 flex items-center gap-2">
+                                            <div className={`w-1 h-1 rounded-full ${campus === '128' ? 'bg-rose-500/50' : 'bg-indigo-500/50'}`}></div>
+                                            <span className="truncate">{c.subject}</span>
+                                        </div>
+                                    ))}
+                                    {classes.length > 3 && (
+                                        <div className="text-[10px] text-zinc-600 pl-3 font-medium">+{classes.length - 3} more options</div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500">
+                                  <div className="flex items-center gap-1.5">
+                                    <MapPin className="w-3 h-3 text-zinc-600" />
+                                    <span>{location}</span>
+                                  </div>
+                                  {professor && (
+                                    <div className="flex items-center gap-1.5">
+                                      <User className="w-3 h-3 text-zinc-600" />
+                                      <span>{professor}</span>
+                                    </div>
+                                  )}
+                                </div>
                             )}
                           </div>
                         </div>
+                        {isActive && <div className={`absolute left-0 top-0 bottom-0 w-1 ${campus === '128' ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>}
                       </div>
-                      {isActive && <div className={`absolute left-0 top-0 bottom-0 w-1 ${campus === '128' ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>}
-                    </div>
-                  );
-                })
+                    );
+                  });
+                })()
               )}
             </div>
           </>
