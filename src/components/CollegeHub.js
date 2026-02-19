@@ -94,33 +94,65 @@ export default function CollegeHub({ campus, onBack }) {
     return idA.localeCompare(idB);
   };
 
-  // --- CATEGORY / SEMESTER LOGIC ---
-  const categories = React.useMemo(() => {
-    const cats = new Set();
+  // --- COURSE & SEMESTER LOGIC ---
+  const structure = React.useMemo(() => {
+    const struct = {};
     Object.keys(allBatches).forEach(key => {
-      // key format: course-campus_sem_phase_batch
-      // e.g. btech-62_sem2_phase1_a1
       const parts = key.split('_');
       if (parts.length >= 2) {
-        cats.add(`${parts[0]}_${parts[1]}`);
+        const courseCode = parts[0].split('-')[0].toUpperCase();
+        const courseLabel = courseCode === 'BTECH' ? 'B.Tech' : courseCode;
+        const semLabel = parts[1].replace('sem', 'Sem ');
+
+        if (!struct[courseLabel]) {
+          struct[courseLabel] = new Set();
+        }
+        struct[courseLabel].add(semLabel);
       }
     });
-    return Array.from(cats).sort();
+    
+    const sortedStruct = {};
+    Object.keys(struct).sort().forEach(course => {
+      sortedStruct[course] = Array.from(struct[course]).sort();
+    });
+    return sortedStruct;
   }, [allBatches]);
 
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
 
-  // Auto-select first category
+  // Auto-select Course
   useEffect(() => {
-    if (categories.length > 0 && !categories.includes(selectedCategory)) {
-      setSelectedCategory(categories[0]);
+    const courses = Object.keys(structure);
+    if (courses.length > 0 && !courses.includes(selectedCourse)) {
+      setSelectedCourse(courses[0]);
     }
-  }, [categories]);
+  }, [structure]);
+
+  // Auto-select Semester
+  useEffect(() => {
+    if (selectedCourse && structure[selectedCourse]) {
+      const sems = structure[selectedCourse];
+      if (!sems.includes(selectedSemester)) {
+        setSelectedSemester(sems[0]);
+      }
+    }
+  }, [selectedCourse, structure, selectedSemester]);
 
   const filteredBatches = React.useMemo(() => {
-    if (!selectedCategory) return [];
-    return Object.keys(allBatches).filter(key => key.startsWith(selectedCategory));
-  }, [allBatches, selectedCategory]);
+    if (!selectedCourse || !selectedSemester) return [];
+    
+    return Object.keys(allBatches).filter(key => {
+      const parts = key.split('_');
+      if (parts.length < 2) return false;
+      
+      const courseCode = parts[0].split('-')[0].toUpperCase();
+      const courseLabel = courseCode === 'BTECH' ? 'B.Tech' : courseCode;
+      const semLabel = parts[1].replace('sem', 'Sem ');
+
+      return courseLabel === selectedCourse && semLabel === selectedSemester;
+    });
+  }, [allBatches, selectedCourse, selectedSemester]);
 
   // Batch State
   const [selectedBatch, setSelectedBatch] = useState("");
@@ -141,9 +173,11 @@ export default function CollegeHub({ campus, onBack }) {
   const rawDayClasses = actualSchedule[currentDay] || [];
 
   // Normalize classes to ensure 'time' property exists (compatibility with new JSON format)
-  const currentDayClasses = rawDayClasses.map(cls => ({
+  const currentDayClasses = rawDayClasses.map((cls, idx) => ({
     ...cls,
-    time: cls.time || (cls.start && cls.end ? `${cls.start} - ${cls.end}` : "00:00 AM - 00:00 AM")
+    id: cls.id || `cls-${idx}`,
+    time: cls.time || (cls.start && cls.end ? `${cls.start} - ${cls.end}` : "00:00 AM - 00:00 AM"),
+    location: cls.venue || cls.location || "TBA"
   }));
 
   // Time & Day Logic
@@ -166,13 +200,6 @@ export default function CollegeHub({ campus, onBack }) {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, [selectedBatch, campus, fullDb]); // Added fullDb dependency to re-check when data arrives
-
-  const formatCategory = (cat) => {
-    const [courseStr, semStr] = cat.split('_');
-    const course = courseStr.split('-')[0].toUpperCase();
-    const sem = semStr.replace('sem', 'Sem ');
-    return `${course === 'BTECH' ? 'B.Tech' : course} ${sem}`;
-  };
 
   // --- MEAL WIDGET LOGIC ---
   const getMealStatus = () => {
@@ -203,7 +230,6 @@ export default function CollegeHub({ campus, onBack }) {
     if (todayName !== currentDay) return { status: "Viewing Schedule", color: "text-zinc-500" };
     if (!currentDayClasses || currentDayClasses.length === 0) return { status: "No Classes Today", color: "text-emerald-400" };
     
-    // Find active class
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
     
     // Helper to parse time string "10:00 AM" to minutes
@@ -216,7 +242,14 @@ export default function CollegeHub({ campus, onBack }) {
         return h * 60 + m;
     };
 
-    const activeClass = currentDayClasses.find(cls => {
+    // Sort classes by start time
+    const sortedClasses = [...currentDayClasses].sort((a, b) => {
+        const startA = parseTime(a.time.split(" - ")[0]);
+        const startB = parseTime(b.time.split(" - ")[0]);
+        return startA - startB;
+    });
+
+    const activeClass = sortedClasses.find(cls => {
         const [startStr, endStr] = cls.time.split(" - ");
         const start = parseTime(startStr);
         const end = parseTime(endStr);
@@ -225,6 +258,24 @@ export default function CollegeHub({ campus, onBack }) {
 
     if (activeClass) {
         return { status: `Now: ${activeClass.subject}`, color: "text-rose-400", activeId: activeClass.id }; // Assuming classes have IDs or use index
+    }
+
+    // Check for next upcoming class
+    const nextClass = sortedClasses.find(cls => {
+        const [startStr] = cls.time.split(" - ");
+        const start = parseTime(startStr);
+        return start > currentMinutes;
+    });
+
+    if (nextClass) {
+        const [startStr] = nextClass.time.split(" - ");
+        const start = parseTime(startStr);
+        const diff = start - currentMinutes;
+        
+        if (diff < 60) {
+             return { status: `Next: ${nextClass.subject} (in ${diff}m)`, color: "text-amber-400" };
+        }
+        return { status: `Next: ${nextClass.subject}`, color: "text-amber-400" };
     }
 
     return { status: "Classes Over", color: "text-emerald-400" }; 
@@ -275,7 +326,7 @@ export default function CollegeHub({ campus, onBack }) {
                 </div>
                 <div className="min-w-0">
                   <h3 className={`font-bold text-sm mb-0.5 ${currentMeal.color}`}>{currentMeal.label}</h3>
-                  <p className="text-zinc-300 text-xs truncate opacity-80">
+                  <p className="text-zinc-300 text-xs whitespace-normal opacity-80">
                     {Array.isArray(currentMeal.items) ? currentMeal.items.join(', ') : currentMeal.items}
                   </p>
                 </div>
@@ -301,20 +352,39 @@ export default function CollegeHub({ campus, onBack }) {
               </div>
             </div>
 
-            {/* Semester/Course Selector */}
-            {categories.length > 1 && (
+            {/* Course Selector */}
+            {Object.keys(structure).length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
-                {categories.map(cat => (
+                {Object.keys(structure).map(course => (
                   <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    key={course}
+                    onClick={() => setSelectedCourse(course)}
                     className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
-                      selectedCategory === cat
+                      selectedCourse === course
                         ? (campus === '128' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20')
                         : 'bg-zinc-900 text-zinc-500 border border-white/5 hover:bg-zinc-800 hover:text-zinc-300'
                     }`}
                   >
-                    {formatCategory(cat)}
+                    {course}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Semester Selector */}
+            {selectedCourse && structure[selectedCourse] && (
+              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
+                {structure[selectedCourse].map(sem => (
+                  <button
+                    key={sem}
+                    onClick={() => setSelectedSemester(sem)}
+                    className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                      selectedSemester === sem
+                        ? (campus === '128' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/50' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/50')
+                        : 'bg-zinc-900 text-zinc-500 border border-white/5 hover:bg-zinc-800 hover:text-zinc-300'
+                    }`}
+                  >
+                    {sem}
                   </button>
                 ))}
               </div>
@@ -369,15 +439,26 @@ export default function CollegeHub({ campus, onBack }) {
                     };
                     return timeToMin(a.time) - timeToMin(b.time);
                 }).map((cls, index) => {
-                  const isLecture = cls.type === "Lecture";
-                  const isLab = cls.type === "Lab";
-                  const isBreak = cls.type === "Break";
-                  const isActive = statusInfo.activeId === cls.id;
+                  // Determine type label and color
+                  let typeLabel = cls.type;
                   let textColor = "text-zinc-400";
-                  if (isLecture) textColor = "text-blue-400";
-                  else if (isLab) textColor = "text-rose-400";
-                  else if (isBreak) textColor = "text-emerald-400";
-                  else textColor = "text-amber-400";
+
+                  if (cls.type === "L" || cls.type === "Lecture") {
+                    typeLabel = "Lecture";
+                    textColor = "text-blue-400";
+                  } else if (cls.type === "T" || cls.type === "Tutorial") {
+                    typeLabel = "Tutorial";
+                    textColor = "text-emerald-400";
+                  } else if (cls.type === "P" || cls.type === "Lab" || cls.type === "Practical") {
+                    typeLabel = "Lab";
+                    textColor = "text-rose-400";
+                  } else if (cls.type === "Break") {
+                    typeLabel = "Break";
+                    textColor = "text-emerald-400";
+                  }
+
+                  const isBreak = typeLabel === "Break";
+                  const isActive = statusInfo.activeId === cls.id;
                   const [startTime, endTime] = cls.time.split(" - ");
                   return (
                     <div key={index} className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group ${isActive ? (campus === '128' ? 'bg-zinc-900/80 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' : 'bg-zinc-900/80 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)]') : 'bg-zinc-900/30 border-white/5 hover:bg-zinc-900 hover:border-white/10'}`}>
@@ -389,7 +470,7 @@ export default function CollegeHub({ campus, onBack }) {
                         </div>
                         <div className="flex-1 p-4 pl-5">
                           <div className="flex justify-between items-start mb-1">
-                             <span className={`text-[10px] font-bold uppercase tracking-wider ${textColor}`}>{cls.type}</span>
+                             <span className={`text-[10px] font-bold uppercase tracking-wider ${textColor}`}>{typeLabel}</span>
                              {isActive && <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${campus === '128' ? 'bg-rose-500' : 'bg-indigo-500'}`}></div>}
                           </div>
                           <h4 className={`text-base font-bold leading-tight mb-1 transition-colors ${isActive ? 'text-white' : 'text-zinc-200'}`}>{cls.subject}</h4>
