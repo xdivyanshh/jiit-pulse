@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import LandingPage from '../components/LandingPage';
 import CollegeHub from '../components/CollegeHub';
-import allBatches128 from '../../classes.json';
+import allBatches128 from '../data/classes.json';
 import { getStudentProfile } from '../utils/studentProfile';
 import { requestNotificationPermission, checkScheduleAndNotify } from '../utils/notificationService';
 
