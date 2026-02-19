@@ -174,7 +174,8 @@ export default function CollegeHub({ campus, onBack }) {
     ...cls,
     id: cls.id || `cls-${idx}`,
     time: cls.time || (cls.start && cls.end ? `${cls.start} - ${cls.end}` : "00:00 AM - 00:00 AM"),
-    location: cls.venue || cls.location || "TBA"
+    location: cls.venue || cls.location || "TBA",
+    professor: cls.teacher || cls.professor
   }));
 
   // Time & Day Logic
