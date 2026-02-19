@@ -77,19 +77,63 @@ export default function CollegeHub({ campus, onBack }) {
 
   const messMenuData = campus === '62' ? messMenu62 : messMenu128;
 
+  // Helper: Sort batches (Moved up to be accessible by effects)
+  const sortBatches = (a, b) => {
+    // Extract the last part of the key (e.g. "e1" from "btech-128_sem2_phase1_e1")
+    const getId = (str) => str.split('_').pop();
+    const idA = getId(a);
+    const idB = getId(b);
+    
+    const splitA = idA.match(/([a-zA-Z]+)(\d+)/);
+    const splitB = idB.match(/([a-zA-Z]+)(\d+)/);
+    
+    if (splitA && splitB) {
+      if (splitA[1].toLowerCase() !== splitB[1].toLowerCase()) return splitA[1].localeCompare(splitB[1]);
+      return parseInt(splitA[2]) - parseInt(splitB[2]);
+    }
+    return idA.localeCompare(idB);
+  };
+
+  // --- CATEGORY / SEMESTER LOGIC ---
+  const categories = React.useMemo(() => {
+    const cats = new Set();
+    Object.keys(allBatches).forEach(key => {
+      // key format: course-campus_sem_phase_batch
+      // e.g. btech-62_sem2_phase1_a1
+      const parts = key.split('_');
+      if (parts.length >= 2) {
+        cats.add(`${parts[0]}_${parts[1]}`);
+      }
+    });
+    return Array.from(cats).sort();
+  }, [allBatches]);
+
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  // Auto-select first category
+  useEffect(() => {
+    if (categories.length > 0 && !categories.includes(selectedCategory)) {
+      setSelectedCategory(categories[0]);
+    }
+  }, [categories]);
+
+  const filteredBatches = React.useMemo(() => {
+    if (!selectedCategory) return [];
+    return Object.keys(allBatches).filter(key => key.startsWith(selectedCategory));
+  }, [allBatches, selectedCategory]);
+
   // Batch State
   const [selectedBatch, setSelectedBatch] = useState("");
 
-  // Auto-select first batch when data loads
+  // Auto-select first batch when filtered list changes
   useEffect(() => {
-    if (allBatches && Object.keys(allBatches).length > 0) {
-      // Only reset if current selection is invalid or empty
-      if (!selectedBatch || !allBatches[selectedBatch]) {
-        const sortedKeys = Object.keys(allBatches).sort(sortBatches);
-        setSelectedBatch(sortedKeys[0]);
+    if (filteredBatches.length > 0) {
+      if (!filteredBatches.includes(selectedBatch)) {
+        const sorted = [...filteredBatches].sort(sortBatches);
+        setSelectedBatch(sorted[0]);
       }
     }
-  }, [allBatches]);
+  }, [filteredBatches]);
 
   const currentBatchSchedule = allBatches ? (allBatches[selectedBatch] || {}) : {};
   // FIX: Handle the nested 'classes' property in your JSON structure
@@ -123,20 +167,11 @@ export default function CollegeHub({ campus, onBack }) {
     return () => clearInterval(timer);
   }, [selectedBatch, campus, fullDb]); // Added fullDb dependency to re-check when data arrives
 
-  const sortBatches = (a, b) => {
-    // Extract the last part of the key (e.g. "e1" from "btech-128_sem2_phase1_e1")
-    const getId = (str) => str.split('_').pop();
-    const idA = getId(a);
-    const idB = getId(b);
-    
-    const splitA = idA.match(/([a-zA-Z]+)(\d+)/);
-    const splitB = idB.match(/([a-zA-Z]+)(\d+)/);
-    
-    if (splitA && splitB) {
-      if (splitA[1].toLowerCase() !== splitB[1].toLowerCase()) return splitA[1].localeCompare(splitB[1]);
-      return parseInt(splitA[2]) - parseInt(splitB[2]);
-    }
-    return idA.localeCompare(idB);
+  const formatCategory = (cat) => {
+    const [courseStr, semStr] = cat.split('_');
+    const course = courseStr.split('-')[0].toUpperCase();
+    const sem = semStr.replace('sem', 'Sem ');
+    return `${course === 'BTECH' ? 'B.Tech' : course} ${sem}`;
   };
 
   // --- MEAL WIDGET LOGIC ---
@@ -266,6 +301,25 @@ export default function CollegeHub({ campus, onBack }) {
               </div>
             </div>
 
+            {/* Semester/Course Selector */}
+            {categories.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                      selectedCategory === cat
+                        ? (campus === '128' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20')
+                        : 'bg-zinc-900 text-zinc-500 border border-white/5 hover:bg-zinc-800 hover:text-zinc-300'
+                    }`}
+                  >
+                    {formatCategory(cat)}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="flex items-center justify-between px-1">
                 <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">Calendar</h3>
@@ -278,8 +332,8 @@ export default function CollegeHub({ campus, onBack }) {
                       {isLoading ? (
                          <option>Loading Batches...</option>
                       ) : (
-                         Object.keys(allBatches).length > 0 ? (
-                            Object.keys(allBatches).sort(sortBatches).map((batch) => {
+                         filteredBatches.length > 0 ? (
+                            filteredBatches.sort(sortBatches).map((batch) => {
                               // Display only the last part of the ID (e.g. "E1")
                               const displayName = batch.split('_').pop().toUpperCase();
                               return <option key={batch} value={batch}>Batch {displayName}</option>;
