@@ -1,61 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, User, Coffee, ChevronDown, UtensilsCrossed, Moon, CloudSun, Sun, ArrowLeft } from 'lucide-react';
+import { MapPin, User, Coffee, ChevronDown, Moon, CloudSun, Sun } from 'lucide-react';
 
-// Data Imports
-import { scheduleData as allBatches62 } from '../data/schedule';
+// --- REMOVED STATIC IMPORTS ---
+// import { scheduleData as allBatches62 } from '../data/schedule'; 
+// We keep Mess Menu static for now as we are only fetching Schedule from DB
 import { messMenu as messMenu62 } from '../data/mess';
 import { messMenu as messMenu128 } from '../data/mess128';
 
-// Component Imports (Sibling imports since we are in the same folder now)
+// Component Imports
 import Navbar from './Navbar';
 import BottomNav from './BottomNav';
 import FacultyDirectory from './FacultyDirectory';
-import { getAllClasses, getScheduleData } from '../lib/fetchSchedule';
 import MessMenu from './MessMenu';
 import WebkioskLogin from './WebkioskLogin';
 import AttendanceTracker from './AttendanceTracker';
 
+// NEW: Import the database helper
+import { fetchDatabase } from '../lib/db';
+
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function CollegeHub({ campus, onBack }) {
+  // --- NEW STATE FOR DATABASE ---
+  const [fullDb, setFullDb] = useState(null); // Stores the raw data from GitHub
+  const [isLoading, setIsLoading] = useState(true);
+
   const [currentDay, setCurrentDay] = useState("Monday");
   const [currentTime, setCurrentTime] = useState(null);
   const [activeTab, setActiveTab] = useState("schedule");
   const [mounted, setMounted] = useState(false);
   const [attendanceData, setAttendanceData] = useState(null);
-  const [dynamicBatches, setDynamicBatches] = useState({});
+  
+  // --- FETCH DATA FROM GITHUB ---
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      const data = await fetchDatabase();
+      if (data) {
+        setFullDb(data);
+      }
+      setIsLoading(false);
+    }
+    loadData();
+  }, []); // Runs once on mount
 
-  // --- DATA SWITCHING LOGIC ---
-  const allBatches = campus === '62' ? allBatches62 : dynamicBatches;
+  // --- FILTER DATA BASED ON CAMPUS ---
+  // This replaces the old "allBatches62" vs "dynamicBatches" logic
+  const allBatches = React.useMemo(() => {
+    if (!fullDb || !fullDb.classes) return {};
+
+    const metadata = fullDb.metadata;
+    const rawClasses = fullDb.classes;
+
+    // 1. Identify which courses belong to this campus
+    // '62' gets B.Tech 62 and BCA 62. '128' gets B.Tech 128.
+    const targetCourses = campus === '62' 
+      ? ['btech-62', 'bca-62'] 
+      : ['btech-128'];
+
+    // 2. Filter the huge class list to only show batches for this campus
+    const filtered = {};
+    Object.keys(rawClasses).forEach(key => {
+      // Skip special keys like 'electives'
+      if (key === 'electives') return;
+
+      // Check if the key starts with any of the target courses (e.g. "btech-128_...")
+      const belongsToCampus = targetCourses.some(course => key.startsWith(course));
+      
+      if (belongsToCampus) {
+        filtered[key] = rawClasses[key];
+      }
+    });
+
+    return filtered;
+  }, [fullDb, campus]);
+
   const messMenuData = campus === '62' ? messMenu62 : messMenu128;
 
   // Batch State
-  const [selectedBatch, setSelectedBatch] = useState(() => {
-    if (allBatches && allBatches["B1"]) return "B1";
-    const keys = allBatches ? Object.keys(allBatches) : [];
-    return keys.length > 0 ? keys[0] : "";
-  });
+  const [selectedBatch, setSelectedBatch] = useState("");
+
+  // Auto-select first batch when data loads
+  useEffect(() => {
+    if (allBatches && Object.keys(allBatches).length > 0) {
+      // Only reset if current selection is invalid or empty
+      if (!selectedBatch || !allBatches[selectedBatch]) {
+        const sortedKeys = Object.keys(allBatches).sort(sortBatches);
+        setSelectedBatch(sortedKeys[0]);
+      }
+    }
+  }, [allBatches]);
 
   const currentBatchSchedule = allBatches ? (allBatches[selectedBatch] || {}) : {};
-  const currentDayClasses = currentBatchSchedule[currentDay] || [];
+  // FIX: Handle the nested 'classes' property in your JSON structure
+  const actualSchedule = currentBatchSchedule.classes || currentBatchSchedule;
+  const rawDayClasses = actualSchedule[currentDay] || [];
 
-  // Fetch dynamic schedule for Sector 128
-  useEffect(() => {
-    if (campus === '128') {
-      getAllClasses().then((data) => {
-        if (data) {
-          const processed = {};
-          Object.entries(data).forEach(([key, value]) => {
-            // Filter out metadata and use full key to prevent collisions
-            if (key === 'electives' || key === 'cacheVersion') return;
-            processed[key] = value;
-          });
-          setDynamicBatches(processed);
-        }
-      });
-    }
-  }, [campus]);
+  // Normalize classes to ensure 'time' property exists (compatibility with new JSON format)
+  const currentDayClasses = rawDayClasses.map(cls => ({
+    ...cls,
+    time: cls.time || (cls.start && cls.end ? `${cls.start} - ${cls.end}` : "00:00 AM - 00:00 AM")
+  }));
 
+  // Time & Day Logic
   useEffect(() => {
     setMounted(true);
     const now = new Date();
@@ -64,6 +111,8 @@ export default function CollegeHub({ campus, onBack }) {
     const todayIndex = now.getDay();
     const todayName = days[todayIndex];
     
+    // Only auto-switch day if we haven't manually selected one yet (optional)
+    // Or keep your logic: if today has classes, show today.
     if (currentBatchSchedule[todayName] && currentBatchSchedule[todayName].length > 0) {
       setCurrentDay(todayName);
     } else if (todayName === "Sunday") {
@@ -72,26 +121,23 @@ export default function CollegeHub({ campus, onBack }) {
 
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
-  }, [selectedBatch, campus]);
+  }, [selectedBatch, campus, fullDb]); // Added fullDb dependency to re-check when data arrives
 
   const sortBatches = (a, b) => {
-    const splitA = a.match(/([A-Z]+)(\d+)/);
-    const splitB = b.match(/([A-Z]+)(\d+)/);
+    // Extract the last part of the key (e.g. "e1" from "btech-128_sem2_phase1_e1")
+    const getId = (str) => str.split('_').pop();
+    const idA = getId(a);
+    const idB = getId(b);
+    
+    const splitA = idA.match(/([a-zA-Z]+)(\d+)/);
+    const splitB = idB.match(/([a-zA-Z]+)(\d+)/);
+    
     if (splitA && splitB) {
-      if (splitA[1] !== splitB[1]) return splitA[1].localeCompare(splitB[1]);
+      if (splitA[1].toLowerCase() !== splitB[1].toLowerCase()) return splitA[1].localeCompare(splitB[1]);
       return parseInt(splitA[2]) - parseInt(splitB[2]);
     }
-    return a.localeCompare(b);
+    return idA.localeCompare(idB);
   };
-
-  // Auto-select first batch when data loads
-  useEffect(() => {
-    if (allBatches && Object.keys(allBatches).length > 0) {
-      if (!allBatches[selectedBatch]) {
-        setSelectedBatch(Object.keys(allBatches).sort(sortBatches)[0]);
-      }
-    }
-  }, [allBatches, selectedBatch]);
 
   // --- MEAL WIDGET LOGIC ---
   const getMealStatus = () => {
@@ -113,13 +159,39 @@ export default function CollegeHub({ campus, onBack }) {
 
   // --- STATUS LOGIC ---
   const getStatus = () => {
+    if (isLoading) return { status: "Syncing Data...", color: "text-blue-400" };
     if (!mounted || !currentTime) return { status: "Loading...", color: "text-zinc-500" };
+    
     const now = currentTime;
     const todayName = days[now.getDay()];
     
     if (todayName !== currentDay) return { status: "Viewing Schedule", color: "text-zinc-500" };
     if (!currentDayClasses || currentDayClasses.length === 0) return { status: "No Classes Today", color: "text-emerald-400" };
-    // Simplified return for brevity, full logic is preserved in rendering below
+    
+    // Find active class
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    // Helper to parse time string "10:00 AM" to minutes
+    const parseTime = (tStr) => {
+        if (!tStr) return 0;
+        const [time, modifier] = tStr.split(' ');
+        let [h, m] = time.split(':').map(Number);
+        if (h === 12) h = 0;
+        if (modifier === 'PM') h += 12;
+        return h * 60 + m;
+    };
+
+    const activeClass = currentDayClasses.find(cls => {
+        const [startStr, endStr] = cls.time.split(" - ");
+        const start = parseTime(startStr);
+        const end = parseTime(endStr);
+        return currentMinutes >= start && currentMinutes < end;
+    });
+
+    if (activeClass) {
+        return { status: `Now: ${activeClass.subject}`, color: "text-rose-400", activeId: activeClass.id }; // Assuming classes have IDs or use index
+    }
+
     return { status: "Classes Over", color: "text-emerald-400" }; 
   };
   const statusInfo = getStatus();
@@ -168,7 +240,9 @@ export default function CollegeHub({ campus, onBack }) {
                 </div>
                 <div className="min-w-0">
                   <h3 className={`font-bold text-sm mb-0.5 ${currentMeal.color}`}>{currentMeal.label}</h3>
-                  <p className="text-zinc-300 text-xs truncate opacity-80">{currentMeal.items}</p>
+                  <p className="text-zinc-300 text-xs truncate opacity-80">
+                    {Array.isArray(currentMeal.items) ? currentMeal.items.join(', ') : currentMeal.items}
+                  </p>
                 </div>
               </div>
             )}
@@ -180,7 +254,7 @@ export default function CollegeHub({ campus, onBack }) {
                  <span className="text-[10px] text-zinc-600 font-mono">{currentDay}</span>
               </div>
               <div className="flex overflow-x-auto gap-3 pb-2 -mx-4 px-4 snap-x no-scrollbar">
-                {Object.keys(currentBatchSchedule).length > 0 ? Object.keys(currentBatchSchedule).map((day) => {
+                {Object.keys(currentBatchSchedule).length > 0 ? days.filter(d => d !== "Sunday").map((day) => {
                   const isActive = currentDay === day;
                   return (
                     <button key={day} onClick={() => setCurrentDay(day)} className={`relative snap-center shrink-0 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${isActive ? (campus === '128' ? 'bg-gradient-to-br from-rose-600 to-rose-900 text-white shadow-lg shadow-rose-900/20 ring-1 ring-white/10' : 'bg-gradient-to-br from-indigo-600 to-indigo-900 text-white shadow-lg shadow-indigo-900/20 ring-1 ring-white/10') : 'bg-transparent text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'}`}>
@@ -201,27 +275,27 @@ export default function CollegeHub({ campus, onBack }) {
                       onChange={(e) => setSelectedBatch(e.target.value)}
                       className="bg-zinc-900 text-zinc-400 text-[10px] font-bold pl-3 pr-8 py-1.5 rounded-full border border-white/5 uppercase tracking-wider outline-none appearance-none cursor-pointer hover:bg-zinc-800 hover:text-white transition-all"
                     >
-                      {allBatches && Object.keys(allBatches).length > 0 ? (
-                        Object.keys(allBatches).sort(sortBatches).map((batch) => {
-                          let label = `Batch ${batch}`;
-                          if (batch.includes('_')) {
-                             const parts = batch.split('_');
-                             if (parts.length >= 4) {
-                               // e.g. BTech_6_P2_B1 -> BTech 6 (B1)
-                               label = `${parts[0]} Sem-${parts[1]} (${parts[3]})`;
-                             } else {
-                               label = batch;
-                             }
-                          }
-                          return <option key={batch} value={batch}>{label}</option>;
-                        })
-                      ) : <option>No Batches</option>}
+                      {isLoading ? (
+                         <option>Loading Batches...</option>
+                      ) : (
+                         Object.keys(allBatches).length > 0 ? (
+                            Object.keys(allBatches).sort(sortBatches).map((batch) => {
+                              // Display only the last part of the ID (e.g. "E1")
+                              const displayName = batch.split('_').pop().toUpperCase();
+                              return <option key={batch} value={batch}>Batch {displayName}</option>;
+                            })
+                         ) : <option>No Batches Found</option>
+                      )}
                     </select>
                     <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-500 pointer-events-none group-hover:text-white transition-colors" />
                 </div>
               </div>
 
-              {!currentDayClasses || currentDayClasses.length === 0 ? (
+              {isLoading ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+                    <p className="text-sm font-medium animate-pulse">Syncing with Cloud...</p>
+                  </div>
+              ) : !currentDayClasses || currentDayClasses.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-zinc-600 bg-zinc-900/20 rounded-3xl border border-dashed border-zinc-800/50">
                   <p className="text-sm font-medium">No classes scheduled</p>
                 </div>

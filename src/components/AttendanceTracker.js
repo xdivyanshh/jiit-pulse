@@ -17,7 +17,9 @@ export default function AttendanceTracker({ selectedBatch, scheduleData }) {
       setAttendance(JSON.parse(savedData));
     } else {
       // If no data, find subjects from the schedule
-      const batchSchedule = currentSchedule[selectedBatch] || {};
+      const rawBatchSchedule = currentSchedule[selectedBatch] || {};
+      // Handle nested 'classes' property if present
+      const batchSchedule = rawBatchSchedule.classes || rawBatchSchedule;
       const subjects = new Set();
       
       Object.values(batchSchedule).forEach(dayClasses => {

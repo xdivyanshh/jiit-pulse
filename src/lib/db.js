@@ -1,34 +1,37 @@
-// src/lib/db.js
+// CONFIGURATION
+const USERNAME = "xdivyanshh";
+const REPO = "jiit-pulse";
+const BRANCH = "main";
 
-// REPLACE the top line with this:
-const REPO_BASE = "https://raw.githubusercontent.com/xdivyanshh/jiit-pulse/refs/heads/main/classes.json";
-
-// The rest of your code in that file looks correct!
+// Helper to generate a URL with a timestamp to prevent caching
+const getUrl = (file) => 
+  `https://raw.githubusercontent.com/${USERNAME}/${REPO}/${BRANCH}/${file}?v=${new Date().getTime()}`;
 
 export async function fetchDatabase() {
-  // Timestamp to prevent caching
-  const time = Date.now();
-
   try {
-    console.log("Fetching database from:", REPO_BASE);
-    
+    const classesUrl = getUrl("classes.json");
+    const metadataUrl = getUrl("metadata.json");
+
+    console.log("Fetching Classes:", classesUrl);
+    console.log("Fetching Metadata:", metadataUrl);
+
     // Fetch both files in parallel
-    const [metadataRes, classesRes] = await Promise.all([
-      fetch(`${REPO_BASE}/metadata.json?t=${time}`),
-      fetch(`${REPO_BASE}/classes.json?t=${time}`)
+    const [classesRes, metadataRes] = await Promise.all([
+      fetch(classesUrl),
+      fetch(metadataUrl)
     ]);
 
-    if (!metadataRes.ok || !classesRes.ok) {
-      console.error("Fetch failed:", metadataRes.status, classesRes.status);
-      throw new Error("Failed to fetch database files");
-    }
+    // Check for HTTP errors (like 404)
+    if (!classesRes.ok) throw new Error(`Classes.json failed: ${classesRes.status}`);
+    if (!metadataRes.ok) throw new Error(`Metadata.json failed: ${metadataRes.status}`);
 
-    const metadata = await metadataRes.json();
+    // Parse JSON
     const classes = await classesRes.json();
+    const metadata = await metadataRes.json();
 
-    return { metadata, classes };
+    return { classes, metadata };
   } catch (error) {
-    console.error("Database Error:", error);
+    console.error("DATABASE ERROR:", error);
     return null;
   }
 }
