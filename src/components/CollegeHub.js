@@ -14,14 +14,15 @@ import FacultyDirectory from './FacultyDirectory';
 import MessMenu from './MessMenu';
 
 // NEW: Import the database helper
-import { fetchDatabase } from '../lib/db';
+// import { fetchDatabase } from '../lib/db';
+import classesData from '../data/classes.json';
 
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function CollegeHub({ campus, onBack }) {
   // --- NEW STATE FOR DATABASE ---
-  const [fullDb, setFullDb] = useState(null); // Stores the raw data from GitHub
-  const [isLoading, setIsLoading] = useState(true);
+  const [fullDb, setFullDb] = useState(classesData); // Stores the raw data from GitHub
+  const [isLoading, setIsLoading] = useState(false);
 
   const [currentDay, setCurrentDay] = useState("Monday");
   const [currentTime, setCurrentTime] = useState(null);
@@ -29,25 +30,14 @@ export default function CollegeHub({ campus, onBack }) {
   const [mounted, setMounted] = useState(false);
   
   // --- FETCH DATA FROM GITHUB ---
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      const data = await fetchDatabase();
-      if (data) {
-        setFullDb(data);
-      }
-      setIsLoading(false);
-    }
-    loadData();
-  }, []); // Runs once on mount
 
   // --- FILTER DATA BASED ON CAMPUS ---
   // This replaces the old "allBatches62" vs "dynamicBatches" logic
   const allBatches = React.useMemo(() => {
-    if (!fullDb || !fullDb.classes) return {};
+    if (!fullDb) return {};
 
-    const metadata = fullDb.metadata;
-    const rawClasses = fullDb.classes;
+    // Support both { classes: {...} } and direct {...} structure
+    const rawClasses = fullDb.classes || fullDb;
 
     // 1. Identify which courses belong to this campus
     // '62' gets B.Tech 62 and BCA 62. '128' gets B.Tech 128.
@@ -164,9 +154,15 @@ export default function CollegeHub({ campus, onBack }) {
     }
   }, [filteredBatches]);
 
-  const currentBatchSchedule = allBatches ? (allBatches[selectedBatch] || {}) : {};
+  const currentBatchSchedule = React.useMemo(() => 
+    allBatches ? (allBatches[selectedBatch] || {}) : {}
+  , [allBatches, selectedBatch]);
+
   // FIX: Handle the nested 'classes' property in your JSON structure
-  const actualSchedule = currentBatchSchedule.classes || currentBatchSchedule;
+  const actualSchedule = React.useMemo(() => 
+    currentBatchSchedule.classes || currentBatchSchedule
+  , [currentBatchSchedule]);
+
   const rawDayClasses = actualSchedule[currentDay] || [];
 
   // Normalize classes to ensure 'time' property exists (compatibility with new JSON format)
@@ -189,7 +185,8 @@ export default function CollegeHub({ campus, onBack }) {
     
     // Only auto-switch day if we haven't manually selected one yet (optional)
     // Or keep your logic: if today has classes, show today.
-    if (currentBatchSchedule[todayName] && currentBatchSchedule[todayName].length > 0) {
+    // FIX: Use actualSchedule to handle nested 'classes' structure
+    if (actualSchedule[todayName] && actualSchedule[todayName].length > 0) {
       setCurrentDay(todayName);
     } else if (todayName === "Sunday") {
       setCurrentDay("Monday");
@@ -197,7 +194,7 @@ export default function CollegeHub({ campus, onBack }) {
 
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
-  }, [selectedBatch, campus, fullDb]); // Added fullDb dependency to re-check when data arrives
+  }, [selectedBatch, campus, fullDb, actualSchedule]); // Added actualSchedule dependency
 
   // --- MEAL WIDGET LOGIC ---
   const getMealStatus = () => {

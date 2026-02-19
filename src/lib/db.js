@@ -9,7 +9,7 @@ const getUrl = (file) =>
 
 export async function fetchDatabase() {
   try {
-    const classesUrl = getUrl("classes.json");
+    const classesUrl = getUrl("src/data/classes.json");
     const metadataUrl = getUrl("metadata.json");
 
     console.log("Fetching Classes:", classesUrl);
