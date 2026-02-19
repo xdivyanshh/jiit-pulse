@@ -12,8 +12,6 @@ import Navbar from './Navbar';
 import BottomNav from './BottomNav';
 import FacultyDirectory from './FacultyDirectory';
 import MessMenu from './MessMenu';
-import WebkioskLogin from './WebkioskLogin';
-import AttendanceTracker from './AttendanceTracker';
 
 // NEW: Import the database helper
 import { fetchDatabase } from '../lib/db';
@@ -29,7 +27,6 @@ export default function CollegeHub({ campus, onBack }) {
   const [currentTime, setCurrentTime] = useState(null);
   const [activeTab, setActiveTab] = useState("schedule");
   const [mounted, setMounted] = useState(false);
-  const [attendanceData, setAttendanceData] = useState(null);
   
   // --- FETCH DATA FROM GITHUB ---
   useEffect(() => {
@@ -499,15 +496,6 @@ export default function CollegeHub({ campus, onBack }) {
 
         {activeTab === 'search' && <FacultyDirectory />}
         {activeTab === 'menu' && <MessMenu menuData={messMenuData} campus={campus} />}
-        {activeTab === 'attendance' && (
-          <>
-            {!attendanceData ? (
-              <WebkioskLogin onLoginSuccess={(data) => setAttendanceData(data)} />
-            ) : (
-              <AttendanceTracker selectedBatch={selectedBatch} scheduleData={allBatches} />
-            )}
-          </>
-        )}
       </main>
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} campus={campus} />
     </div>
