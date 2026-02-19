@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, User, Coffee, ChevronDown, Moon, CloudSun, Sun } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MapPin, User, Coffee, ChevronDown, Moon, CloudSun, Sun, X } from 'lucide-react';
 
 // --- REMOVED STATIC IMPORTS ---
 // import { scheduleData as allBatches62 } from '../data/schedule'; 
@@ -235,6 +235,26 @@ export default function CollegeHub({ campus, onBack }) {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, [selectedBatch, campus, fullDb, actualSchedule]); // Added actualSchedule dependency
+
+  // --- LONG PRESS LOGIC (HOLD TO EXPAND) ---
+  const [expandedSlot, setExpandedSlot] = useState(null);
+  const longPressTimerRef = useRef(null);
+
+  const handlePressStart = (slotData) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setExpandedSlot(slotData);
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(50); // Haptic feedback
+      }
+    }, 500); // 500ms hold time
+  };
+
+  const handlePressEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
 
   // --- MEAL WIDGET LOGIC ---
   const getMealStatus = () => {
@@ -530,7 +550,16 @@ export default function CollegeHub({ campus, onBack }) {
                     const [startTime, endTime] = time.split(" - ");
 
                     return (
-                      <div key={index} className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group ${isActive ? (campus === '128' ? 'bg-zinc-900/80 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' : 'bg-zinc-900/80 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)]') : 'bg-zinc-900/30 border-white/5 hover:bg-zinc-900 hover:border-white/10'}`}>
+                      <div 
+                        key={index} 
+                        className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group select-none active:scale-[0.98] ${isActive ? (campus === '128' ? 'bg-zinc-900/80 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' : 'bg-zinc-900/80 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)]') : 'bg-zinc-900/30 border-white/5 hover:bg-zinc-900 hover:border-white/10'}`}
+                        onMouseDown={() => handlePressStart(classes)}
+                        onMouseUp={handlePressEnd}
+                        onMouseLeave={handlePressEnd}
+                        onTouchStart={() => handlePressStart(classes)}
+                        onTouchEnd={handlePressEnd}
+                        onTouchMove={handlePressEnd} // Cancel on scroll
+                      >
                         <div className="flex">
                           <div className="w-24 p-3 flex flex-col items-center justify-center border-r border-white/5 bg-black/20 shrink-0">
                             <span className="text-xs font-bold text-white whitespace-nowrap">{startTime}</span>
@@ -580,6 +609,37 @@ export default function CollegeHub({ campus, onBack }) {
               )}
             </div>
           </>
+        )}
+
+        {/* Expanded Slot Modal */}
+        {expandedSlot && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setExpandedSlot(null)}>
+            <div className="bg-zinc-900 border border-white/10 rounded-3xl w-full max-w-sm max-h-[80vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+              <div className="p-5 border-b border-white/5 bg-zinc-900/50 flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-bold text-white">Class Details</h3>
+                  <p className="text-zinc-400 text-xs font-mono mt-0.5">{expandedSlot[0]?.time}</p>
+                </div>
+                <button onClick={() => setExpandedSlot(null)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors">
+                  <X size={18} className="text-zinc-400" />
+                </button>
+              </div>
+              <div className="p-5 overflow-y-auto space-y-3 no-scrollbar">
+                {expandedSlot.map((cls, i) => (
+                  <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                    <div className="flex justify-between items-start gap-3 mb-2">
+                      <h4 className="text-sm font-bold text-zinc-100 leading-snug">{cls.subject}</h4>
+                      {cls.category && <span className="text-[10px] font-bold px-2 py-1 rounded bg-indigo-500/20 text-indigo-300 whitespace-nowrap">{cls.category}</span>}
+                    </div>
+                    <div className="space-y-1.5">
+                      {cls.professor && <div className="flex items-center gap-2 text-xs text-zinc-400"><User size={12} className="shrink-0" /><span>{cls.professor}</span></div>}
+                      <div className="flex items-center gap-2 text-xs text-zinc-400"><MapPin size={12} className="shrink-0" /><span>{cls.location}</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
         {activeTab === 'search' && <FacultyDirectory />}
