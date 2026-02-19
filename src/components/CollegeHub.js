@@ -340,7 +340,7 @@ export default function CollegeHub({ campus, onBack }) {
                  <span className="text-[10px] text-zinc-600 font-mono">{currentDay}</span>
               </div>
               <div className="flex overflow-x-auto gap-3 pb-2 -mx-4 px-4 snap-x no-scrollbar">
-                {Object.keys(currentBatchSchedule).length > 0 ? days.filter(d => d !== "Sunday").map((day) => {
+                {Object.keys(currentBatchSchedule).length > 0 ? days.map((day) => {
                   const isActive = currentDay === day;
                   return (
                     <button key={day} onClick={() => setCurrentDay(day)} className={`relative snap-center shrink-0 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${isActive ? (campus === '128' ? 'bg-gradient-to-br from-rose-600 to-rose-900 text-white shadow-lg shadow-rose-900/20 ring-1 ring-white/10' : 'bg-gradient-to-br from-indigo-600 to-indigo-900 text-white shadow-lg shadow-indigo-900/20 ring-1 ring-white/10') : 'bg-transparent text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'}`}>
