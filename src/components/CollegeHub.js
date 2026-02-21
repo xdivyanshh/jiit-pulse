@@ -6,6 +6,7 @@ import { MapPin, User, Coffee, ChevronDown, Moon, CloudSun, Sun, X } from 'lucid
 // We keep Mess Menu static for now as we are only fetching Schedule from DB
 import { messMenu as messMenu62 } from '../data/mess';
 import { messMenu as messMenu128 } from '../data/mess128';
+import { allFacultyData } from '../data/faculty';
 
 // Component Imports
 import Navbar from './Navbar';
@@ -63,6 +64,7 @@ export default function CollegeHub({ campus, onBack }) {
   }, [fullDb, campus]);
 
   const messMenuData = campus === '62' ? messMenu62 : messMenu128;
+  const facultyDataForCampus = allFacultyData[campus] || {};
 
   // Helper: Sort batches (Moved up to be accessible by effects)
   const sortBatches = (a, b) => {
@@ -723,7 +725,7 @@ export default function CollegeHub({ campus, onBack }) {
           </div>
         )}
 
-        {activeTab === 'search' && <FacultyDirectory />}
+        {activeTab === 'search' && <FacultyDirectory facultyData={facultyDataForCampus} campus={campus} />}
         {activeTab === 'menu' && <MessMenu menuData={messMenuData} campus={campus} />}
       </main>
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} campus={campus} />

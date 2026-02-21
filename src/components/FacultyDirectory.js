@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Search, User, Mail, BookOpen, X, ExternalLink } from 'lucide-react';
-import { facultyData } from '../data/faculty';
 
-export default function FacultyDirectory() {
+export default function FacultyDirectory({ facultyData, campus }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFaculty, setSelectedFaculty] = useState(null);
 
@@ -79,7 +78,7 @@ export default function FacultyDirectory() {
           <div className="bg-zinc-900 border border-white/10 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative" onClick={e => e.stopPropagation()}>
             
             {/* Header Background */}
-            <div className="h-24 bg-gradient-to-r from-indigo-600 to-purple-600 relative">
+            <div className={`h-24 bg-gradient-to-r ${campus === '128' ? 'from-rose-600 to-purple-600' : 'from-indigo-600 to-purple-600'} relative`}>
                <button 
                 onClick={() => setSelectedFaculty(null)} 
                 className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/80 hover:text-white transition-colors backdrop-blur-md"
@@ -102,14 +101,14 @@ export default function FacultyDirectory() {
 
               <div className="text-center mb-6">
                 <h2 className="text-xl font-bold text-white mb-1">{selectedFaculty.name}</h2>
-                <p className="text-sm text-indigo-400 font-medium">{selectedFaculty.designation}</p>
+                <p className={`text-sm ${campus === '128' ? 'text-rose-400' : 'text-indigo-400'} font-medium`}>{selectedFaculty.designation}</p>
                 <p className="text-xs text-zinc-500">{selectedFaculty.department}</p>
               </div>
 
               <div className="space-y-3">
                 {selectedFaculty.email && (
                   <a href={`mailto:${selectedFaculty.email}`} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 group">
-                    <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                    <div className={`p-2 rounded-lg ${campus === '128' ? 'bg-rose-500/10 text-rose-400 group-hover:bg-rose-500' : 'bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500'} group-hover:text-white transition-colors`}>
                       <Mail size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
