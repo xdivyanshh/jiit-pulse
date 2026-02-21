@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Users, ExternalLink, ChevronRight, Calendar, Instagram, 
   Globe, Zap, Music, Code, Cpu, Terminal, Radio, Database, 
   Mic, Star, Video, Palette, MessageSquare, TrendingUp, 
-  Heart, Leaf, Trophy 
+  Heart, Leaf, Trophy, X 
 } from 'lucide-react';
 
 export default function ClubsHubs({ campus }) {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [expandedClub, setExpandedClub] = useState(null);
+  const longPressTimerRef = useRef(null);
+
+  const handlePressStart = (club) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setExpandedClub(club);
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(50); // Haptic feedback
+      }
+    }, 500); // 500ms hold time
+  };
+
+  const handlePressEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
 
   const clubs = [
     // --- Technical: Coding & Dev ---
@@ -318,10 +336,16 @@ export default function ClubsHubs({ campus }) {
         {filteredClubs.map((club, index) => (
           <div 
             key={club.id} 
-            className="group relative bg-zinc-900/40 backdrop-blur-sm border border-white/5 rounded-3xl p-5 overflow-hidden hover:bg-zinc-900/60 transition-all duration-300 active:scale-[0.98]"
+            className="group relative bg-zinc-900/40 backdrop-blur-sm border border-white/5 rounded-3xl p-5 overflow-hidden hover:bg-zinc-900/60 transition-all duration-300 active:scale-[0.98] select-none"
             style={{
               animation: `slideUp 0.5s ease-out ${index * 0.1}s both`
             }}
+            onMouseDown={() => handlePressStart(club)}
+            onMouseUp={handlePressEnd}
+            onMouseLeave={handlePressEnd}
+            onTouchStart={() => handlePressStart(club)}
+            onTouchEnd={handlePressEnd}
+            onTouchMove={handlePressEnd}
           >
             {/* Gradient Glow on Hover */}
             <div className={`absolute inset-0 bg-gradient-to-br ${club.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
@@ -376,6 +400,55 @@ export default function ClubsHubs({ campus }) {
            </div>
         )}
       </div>
+
+      {/* Expanded Club Modal */}
+      {expandedClub && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setExpandedClub(null)}>
+          <div className="bg-zinc-900 border border-white/10 rounded-3xl w-full max-w-sm max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative" onClick={e => e.stopPropagation()}>
+            {/* Background Gradient */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${expandedClub.color} opacity-5 pointer-events-none`}></div>
+            
+            <div className="p-5 border-b border-white/5 bg-zinc-900/50 flex justify-between items-center relative z-10">
+               <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl bg-zinc-800/50 border border-white/5 flex items-center justify-center ${expandedClub.iconColor}`}>
+                     <expandedClub.icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white leading-none">{expandedClub.name}</h3>
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{expandedClub.category}</span>
+                  </div>
+               </div>
+               <button onClick={() => setExpandedClub(null)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors">
+                  <X size={18} className="text-zinc-400" />
+               </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto no-scrollbar relative z-10 space-y-6">
+               <div>
+                  <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">About</h4>
+                  <p className="text-sm text-zinc-300 leading-relaxed">
+                    {expandedClub.description}
+                  </p>
+               </div>
+
+               <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/5 text-center">
+                     <div className="text-2xl font-bold text-white mb-1">{expandedClub.members}</div>
+                     <div className="text-[10px] text-zinc-500 uppercase font-bold">Active Members</div>
+                  </div>
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/5 text-center">
+                     <div className="text-2xl font-bold text-white mb-1">{expandedClub.events}</div>
+                     <div className="text-[10px] text-zinc-500 uppercase font-bold">Annual Events</div>
+                  </div>
+               </div>
+
+               <button className={`w-full py-3 rounded-xl ${is128 ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2`}>
+                  Visit Club Page <ExternalLink className="w-4 h-4" />
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes slideUp {
