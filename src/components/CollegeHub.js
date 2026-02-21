@@ -193,7 +193,18 @@ export default function CollegeHub({ campus, onBack }) {
 
   // Normalize classes to ensure 'time' property exists (compatibility with new JSON format)
   const currentDayClasses = React.useMemo(() => {
-    const classes = rawDayClasses.map((cls, idx) => ({
+    // Helper to parse time string "10:00 AM" to minutes
+    const parseTime = (tStr) => {
+        if (!tStr) return 0;
+        const [time, modifier] = tStr.split(' ');
+        if (!time) return 0;
+        let [h, m] = time.split(':').map(Number);
+        if (h === 12) h = 0;
+        if (modifier === 'PM') h += 12;
+        return h * 60 + m;
+    };
+
+    let classes = rawDayClasses.map((cls, idx) => ({
       ...cls,
       id: cls.id || `cls-${idx}`,
       time: cls.time || (cls.start && cls.end ? `${cls.start} - ${cls.end}` : "00:00 AM - 00:00 AM"),
@@ -201,15 +212,74 @@ export default function CollegeHub({ campus, onBack }) {
       professor: cls.teacher || cls.professor
     }));
 
+    // FIX: Remove "Minor Elective" or generic "Electives" from 1-2 PM slot
+    // User reported these are incorrect placeholders overlapping with Lunch.
+    classes = classes.filter(cls => {
+        const [s, e] = cls.time.split(" - ");
+        const start = parseTime(s);
+        const end = parseTime(e);
+        
+        // Check if class overlaps with 1:00 PM - 2:00 PM (780 - 840)
+        if (start < 840 && end > 780) {
+             const subj = (cls.subject || "").toLowerCase();
+             if (subj.includes("minor") || subj.includes("elective") || subj.includes("open")) {
+                return false;
+             }
+        }
+        return true;
+    });
+
+    // Sort classes by start time
+    classes.sort((a, b) => {
+        const startA = parseTime(a.time.split(" - ")[0]);
+        const startB = parseTime(b.time.split(" - ")[0]);
+        return startA - startB;
+    });
+
     if (classes.length > 0) {
-      classes.push({
-        id: "lunch-break",
-        subject: "Lunch Break",
-        time: "12:00 PM - 02:00 PM",
-        type: "Break",
-        location: "Cafeteria/Mess",
-        professor: null
-      });
+      // Check for lunch gaps (12:00 PM - 2:00 PM)
+      // 12:00 PM = 720 min, 1:00 PM = 780 min, 2:00 PM = 840 min
+      
+      const isOccupied = (startMin, endMin) => {
+        return classes.some(cls => {
+            const [s, e] = cls.time.split(" - ");
+            const clsStart = parseTime(s);
+            const clsEnd = parseTime(e);
+            // Check overlap: (StartA < EndB) and (EndA > StartB)
+            return clsStart < endMin && clsEnd > startMin;
+        });
+      };
+
+      const busy12to1 = isOccupied(720, 780);
+      const busy1to2 = isOccupied(780, 840);
+
+      let lunchTime = null;
+
+      if (!busy12to1 && !busy1to2) {
+          lunchTime = "12:00 PM - 02:00 PM";
+      } else if (!busy12to1) {
+          lunchTime = "12:00 PM - 01:00 PM";
+      } else if (!busy1to2) {
+          lunchTime = "01:00 PM - 02:00 PM";
+      }
+
+      if (lunchTime) {
+        classes.push({
+          id: "lunch-break",
+          subject: "Lunch Break",
+          time: lunchTime,
+          type: "Break",
+          location: "Cafeteria/Mess",
+          professor: null
+        });
+        
+        // Re-sort to place lunch correctly
+        classes.sort((a, b) => {
+            const startA = parseTime(a.time.split(" - ")[0]);
+            const startB = parseTime(b.time.split(" - ")[0]);
+            return startA - startB;
+        });
+      }
     }
     return classes;
   }, [rawDayClasses]);
@@ -521,15 +591,26 @@ export default function CollegeHub({ campus, onBack }) {
                     let textColor = "text-zinc-400";
 
                     if (isMulti) {
-                       // It's an elective slot or collision
-                       const categories = [...new Set(classes.map(c => c.category).filter(Boolean))];
-                       const commonCategory = categories.length > 0 ? categories.join(" / ") : "Electives";
+                       // Check if one of them is Lunch
+                       const hasLunch = classes.some(c => c.type === 'Break');
                        
-                       subject = `${commonCategory} (Select 1)`;
-                       typeLabel = "Elective";
-                       textColor = "text-purple-400";
-                       location = "Multiple Venues";
-                       professor = "Multiple Faculty";
+                       if (hasLunch) {
+                           subject = "Lunch Break / Electives";
+                           typeLabel = "Break / Elective";
+                           textColor = "text-amber-400";
+                           location = "Cafeteria / Classrooms";
+                           professor = null;
+                       } else {
+                           // It's an elective slot or collision
+                           const categories = [...new Set(classes.map(c => c.category).filter(Boolean))];
+                           const commonCategory = categories.length > 0 ? categories.join(" / ") : "Electives";
+                           
+                           subject = `${commonCategory} (Select 1)`;
+                           typeLabel = "Elective";
+                           textColor = "text-purple-400";
+                           location = "Multiple Venues";
+                           professor = "Multiple Faculty";
+                       }
                     } else {
                        // Single class formatting
                        if (first.type === "L" || first.type === "Lecture") {
