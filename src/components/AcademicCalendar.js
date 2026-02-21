@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { CalendarDays, Sun, Star, BookOpen, Briefcase } from 'lucide-react';
+import { CalendarDays, Sun, Star, BookOpen, Briefcase, CalendarPlus, Download, X } from 'lucide-react';
 
 export default function AcademicCalendar() {
   const [activeTab, setActiveTab] = useState('odd');
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const oddSemEvents = [
     { date: "10 Jul 2025", event: "Registration (1st Year)", type: "admin" },
@@ -62,6 +63,55 @@ export default function AcademicCalendar() {
       case 'admin': return <Briefcase className="w-3 h-3 text-amber-500" />;
       default: return null;
     }
+  };
+
+  const parseDateString = (dateStr) => {
+    const parts = dateStr.split(' ');
+    if (parts.length < 3) return null;
+    const day = parseInt(parts[0]);
+    const monthStr = parts[1];
+    const year = parseInt(parts[2]);
+    
+    const months = {
+        Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+        Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+    };
+    
+    return new Date(year, months[monthStr], day);
+  };
+
+  const addToGoogleCalendar = (item) => {
+    const date = parseDateString(item.date);
+    if (!date) return;
+    
+    const start = date.toISOString().replace(/-|:|\.\d\d\d/g, "").split("T")[0];
+    const nextDay = new Date(date);
+    nextDay.setDate(date.getDate() + 1);
+    const end = nextDay.toISOString().replace(/-|:|\.\d\d\d/g, "").split("T")[0];
+    
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.event)}&dates=${start}/${end}&details=${encodeURIComponent("Event at JIIT Noida")}`;
+    window.open(url, '_blank');
+  };
+
+  const downloadICS = (item) => {
+    const date = parseDateString(item.date);
+    if (!date) return;
+    
+    const start = date.toISOString().replace(/-|:|\.\d\d\d/g, "").split("T")[0];
+    const nextDay = new Date(date);
+    nextDay.setDate(date.getDate() + 1);
+    const end = nextDay.toISOString().replace(/-|:|\.\d\d\d/g, "").split("T")[0];
+    
+    const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${item.event}\nDTSTART;VALUE=DATE:${start}\nDTEND;VALUE=DATE:${end}\nDESCRIPTION:Event at JIIT Noida\nEND:VEVENT\nEND:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${item.event.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -126,9 +176,41 @@ export default function AcademicCalendar() {
                 {getIcon(item.type || 'holiday')}
               </div>
             </div>
+
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedEvent(item);
+              }}
+              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white transition-colors shrink-0"
+            >
+              <CalendarPlus className="w-4 h-4" />
+            </button>
           </div>
         ))}
       </div>
+
+      {/* Calendar Modal */}
+      {selectedEvent && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedEvent(null)}>
+          <div className="bg-zinc-900 border border-white/10 rounded-2xl w-full max-w-xs p-5 shadow-2xl space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start gap-4">
+              <h3 className="text-white font-bold text-lg leading-tight">{selectedEvent.event}</h3>
+              <button onClick={() => setSelectedEvent(null)} className="p-1 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><X className="w-5 h-5 text-zinc-400" /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => addToGoogleCalendar(selectedEvent)} className="bg-zinc-800 hover:bg-zinc-700 text-white p-4 rounded-xl flex flex-col items-center gap-2 transition-colors border border-white/5">
+                <CalendarDays className="w-6 h-6 text-blue-500" />
+                <span className="text-xs font-bold">Google</span>
+              </button>
+              <button onClick={() => downloadICS(selectedEvent)} className="bg-zinc-800 hover:bg-zinc-700 text-white p-4 rounded-xl flex flex-col items-center gap-2 transition-colors border border-white/5">
+                <Download className="w-6 h-6 text-emerald-500" />
+                <span className="text-xs font-bold">iOS / Outlook</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <style jsx>{`
         @keyframes slideIn {
