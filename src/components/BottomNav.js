@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Search, Menu } from 'lucide-react';
+import { Calendar, Search, Menu, Users } from 'lucide-react';
 
 export default function BottomNav({ activeTab, setActiveTab, campus }) {
   const getIconColor = (tabName) => activeTab === tabName ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300';
@@ -21,6 +21,7 @@ export default function BottomNav({ activeTab, setActiveTab, campus }) {
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900/90 backdrop-blur-xl border border-white/10 p-1.5 rounded-full flex gap-1 shadow-2xl z-50">
       <NavButton tab="schedule" icon={Calendar} />
       <NavButton tab="search" icon={Search} />
+      <NavButton tab="clubs" icon={Users} />
       <NavButton tab="menu" icon={Menu} />
     </div>
   );

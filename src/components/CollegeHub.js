@@ -13,6 +13,7 @@ import Navbar from './Navbar';
 import BottomNav from './BottomNav';
 import FacultyDirectory from './FacultyDirectory';
 import MessMenu from './MessMenu';
+import ClubsHubs from './ClubsHubs';
 
 // NEW: Import the database helper
 // import { fetchDatabase } from '../lib/db';
@@ -726,6 +727,7 @@ export default function CollegeHub({ campus, onBack }) {
         )}
 
         {activeTab === 'search' && <FacultyDirectory facultyData={facultyDataForCampus} campus={campus} />}
+        {activeTab === 'clubs' && <ClubsHubs campus={campus} />}
         {activeTab === 'menu' && <MessMenu menuData={messMenuData} campus={campus} />}
       </main>
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} campus={campus} />
