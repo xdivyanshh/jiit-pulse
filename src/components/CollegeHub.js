@@ -15,6 +15,7 @@ import FacultyDirectory from './FacultyDirectory';
 import MessMenu from './MessMenu';
 import ClubsHubs from './ClubsHubs';
 import AcademicCalendar from './AcademicCalendar';
+import Placements from './Placements';
 
 // NEW: Import the database helper
 // import { fetchDatabase } from '../lib/db';
@@ -731,6 +732,7 @@ export default function CollegeHub({ campus, onBack }) {
         {activeTab === 'clubs' && <ClubsHubs campus={campus} />}
         {activeTab === 'menu' && <MessMenu menuData={messMenuData} campus={campus} />}
         {activeTab === 'calendar' && <AcademicCalendar />}
+        {activeTab === 'placements' && <Placements />}
       </main>
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} campus={campus} />
     </div>
