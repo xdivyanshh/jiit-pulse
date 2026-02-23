@@ -15,7 +15,7 @@ export const messMenu = {
     Lunch: "Jeera Rice, Dal Makhani, Mix Veg, Chapati, Pickle, Salad, Dahi bhalle"
   },
   Saturday: {
-    Lunch: "Plain Rice, Black Chana, Sita Fal, Bedmi Puri, Pickle, Mix Salad, Rice Kheer"
+    Lunch: "Plain Rice, Black Chana, Sita Fal, Bedmi Puri / chapati, Pickle, Mix Salad, Rice Kheer"
   },
   Sunday: {
     Lunch: "Menu not available"
