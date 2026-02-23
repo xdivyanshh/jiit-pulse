@@ -3,7 +3,8 @@ import {
   Users, ExternalLink, ChevronRight, Calendar, Instagram, 
   Globe, Zap, Music, Code, Cpu, Terminal, Radio, Database, 
   Mic, Star, Video, Palette, MessageSquare, TrendingUp,
-  Heart, Leaf, Trophy, X, Camera
+  Heart, Leaf, Trophy, X, Camera, Activity
+  Heart, Leaf, Trophy, X, Camera, Activity, BookOpen
 } from 'lucide-react';
 
 export default function ClubsHubs({ campus }) {
@@ -244,6 +245,18 @@ export default function ClubsHubs({ campus }) {
       iconColor: "text-blue-400"
     },
     {
+      id: "pageturner",
+      name: "Page Turner Society",
+      fullName: "The Book Club",
+      description: "Encourages reading culture through book exchanges, author meetups, and visits to book cafes. Events: 'Wordsmith Hunt', 'Bookapedia', and 'Hult Prize'.",
+      category: "Literary",
+      members: "80+",
+      events: "6+",
+      icon: BookOpen,
+      color: "from-amber-500 to-orange-600",
+      iconColor: "text-amber-500"
+    },
+    {
       id: "business",
       name: "Business Hub",
       fullName: "Economics and Business Hub",
@@ -268,6 +281,30 @@ export default function ClubsHubs({ campus }) {
       icon: Heart,
       color: "from-red-600 to-rose-600",
       iconColor: "text-red-500"
+    },
+    {
+      id: "yoga",
+      name: "Yoga Hub",
+      fullName: "Yoga, Prahari & Health Hub",
+      description: "Promotes holistic wellness (physical, emotional, spiritual). Conducts regular yoga sessions and 'Prahari' drug awareness campaigns via nukkad natak.",
+      category: "Social",
+      members: "50+",
+      events: "Weekly",
+      icon: Activity,
+      color: "from-teal-500 to-green-500",
+      iconColor: "text-teal-400"
+    },
+    {
+      id: "itsourearth",
+      name: "It’s Our Earth",
+      fullName: "Social & Environmental Hub",
+      description: "Fosters student empowerment for social and environmental development. Organizes Tree Plantation drives, Donation camps, and 'Say No to Drugs' campaigns.",
+      category: "Social",
+      members: "120+",
+      events: "8+",
+      icon: Globe,
+      color: "from-emerald-500 to-cyan-500",
+      iconColor: "text-emerald-400"
     },
     {
       id: "ecoquence",
