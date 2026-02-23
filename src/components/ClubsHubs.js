@@ -3,7 +3,6 @@ import {
   Users, ExternalLink, ChevronRight, Calendar, Instagram, 
   Globe, Zap, Music, Code, Cpu, Terminal, Radio, Database, 
   Mic, Star, Video, Palette, MessageSquare, TrendingUp,
-  Heart, Leaf, Trophy, X, Camera, Activity
   Heart, Leaf, Trophy, X, Camera, Activity, BookOpen
 } from 'lucide-react';
 
