@@ -2,25 +2,37 @@ import React, { useState } from 'react';
 import { Briefcase, TrendingUp, Award, Users, Building2, ChevronDown, ChevronUp, DollarSign, BarChart3, Search } from 'lucide-react';
 
 export default function Placements() {
-  const [activeBatch, setActiveBatch] = useState('2025');
+  const [activeBatch, setActiveBatch] = useState('2026');
   const [showAllRecruiters, setShowAllRecruiters] = useState(false);
   const [recruiterSearch, setRecruiterSearch] = useState("");
 
-  const highlights2025 = {
-    highest: "62.00",
-    second: "55.38",
-    third: "52.75",
-    average: "11.13",
-    median: "7.93",
-    companies: "260+",
+  const highlights2026 = {
+    highest: "94.25",
+    second: "65.21",
+    third: "60.44",
+    average: "12.44",
+    median: "8.26",
+    companies: "178",
     offers: {
-      high: "178", // > 13L
-      mid: "350", // 6-13L
-      low: "406" // < 6L
+      high: "169", // > 13L
+      mid: "304", // 6-13L
+      low: "246" // < 6L
     }
   };
 
   const batchStats = {
+    '2026': {
+      year: '2022-2026',
+      highest: '94.25 Lakhs (LinkedIn)',
+      second: '65.21 Lakhs (Atlassian)',
+      type: 'distribution',
+      data: [
+        { category: 'Top 100 Students', avg: '30.24', median: '23.15' },
+        { category: 'Top 150 Students', avg: '25.42', median: '23.00' },
+        { category: 'Top 200 Students', avg: '22.01', median: '18.00' },
+        { category: 'Batch (So Far 557)', avg: '12.44', median: '8.26' }
+      ]
+    },
     '2025': {
       year: '2021-2025',
       highest: '62.00 Lakhs (Atlassian)',
@@ -84,8 +96,9 @@ export default function Placements() {
   };
 
   const recruiters = [
-    "1Digitalstack.ai", "ABC Info Soft", "Accenture", "Acro Engineering", "Adbrew", "Afford Medical", "Agoda", "AKS IT Services", "Altudo", "Amar Ujala (Digital)",
-    "Amazon", "Amazon Non Tech", "American Express", "AppVin Technologies", "Aspire", "Athena Executive Search", "Atlassian", "Atomic Work", "Avendum Technologies", "AventIQ",
+    "LinkedIn", "Atlassian", "Pure Storage", "Zomato", "Texas Instruments", "Paypal", "PlaySimple Games", "Richpanel", "SAP Labs", "CISCO", "Google India", "Amazon", "Infosys", "Cognizant", "Accenture", "LTIMindtree", "Ciena", "Concept2Action.ai", "Amar Ujala Digital", "Omniful", "Techolutions", "ProcDNA Analytics", "Cadence", "Afford Medical", "STMicroelectronics", "Vinsol Stadium", "Magicpin", "Zinnia", "SaaS Labs", "Watchguard Technologies", "DarwinBox", "Salescode.ai", "Oracle Financial Services Software", "ZScaler", "SmartShift Technologies", "Real Time Data Services", "ION Group", "Sprinklr", "Chetu Inc.", "Eucloid", "ZS Associates", "Circle K Business Centre", "MoveInSync", "GreyB", "AXA XL", "Indus Tower", "Thales Group",
+    "1Digitalstack.ai", "ABC Info Soft", "Acro Engineering", "Adbrew", "Agoda", "AKS IT Services", "Altudo",
+    "Amazon Non Tech", "American Express", "AppVin Technologies", "Aspire", "Athena Executive Search", "Atomic Work", "Avendum Technologies", "AventIQ",
     "Axeno", "Axtria", "Bebetta", "Bhanzu", "Bharat Digital Education", "Bharat Pe", "BlogVault", "BN Group", "BOSCH", "BOT Consulting",
     "Branch International", "BrickWin Consultancy", "Bureau Veritas", "Cadence", "Capgemini", "CERN (European)", "Ciena", "CISCO", "Clarivate", "Classplus",
     "CloudKeeper", "Coditas Solutions", "Coforge", "Cognida.ai", "Cognizant", "Collegedekho", "Comcon Technologies", "Contevolve", "Convegenius", "CORIZO",
@@ -109,7 +122,7 @@ export default function Placements() {
     "TAK Technologies", "Tata Advanced Systems", "Tata Power", "TCS", "TeacherOn.com", "Techginity", "Thales Group", "The Catalysts Group", "The Goodspace AI", "Think41",
     "Threatcop-Kratikal", "TickIT", "TotheNew", "Transcend Info", "TravClan", "Triton Software", "Udaan", "Uniqode Phygital", "University Living", "Uolo",
     "upGrad", "Valorant Consulting", "Vehant", "Venera Connect", "Vitraya", "VServe Infosystems", "Walmart Global", "WatchGuard", "Wingify", "Wipro",
-    "WiserStack", "Workato", "Xeno", "Xogene", "Youngsoft India", "Zomato", "ZopSmart", "Zscaler", "Zycus", "Zydus"
+    "WiserStack", "Workato", "Xeno", "Xogene", "Youngsoft India", "ZopSmart", "Zycus", "Zydus"
   ];
 
   const filteredRecruiters = recruiters.filter(r => r.toLowerCase().includes(recruiterSearch.toLowerCase()));
@@ -133,36 +146,36 @@ export default function Placements() {
         Training and Placement activities are executed centrally from JIIT Noida. The department is headed by Brigadier Sanjay Dawar (Retd.), Dean of Students’ Welfare.
       </div>
 
-      {/* 2025 Highlights */}
+      {/* 2026 Highlights */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-          <Award className="w-4 h-4 text-amber-500" /> Batch 2025 Highlights
+          <Award className="w-4 h-4 text-amber-500" /> Batch 2026 Highlights
         </h3>
         
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-gradient-to-br from-emerald-900/50 to-emerald-900/20 border border-emerald-500/20 p-4 rounded-2xl">
             <div className="text-xs text-emerald-400 font-bold uppercase mb-1">Highest Package</div>
-            <div className="text-2xl font-bold text-white">₹{highlights2025.highest} L</div>
-            <div className="text-[10px] text-emerald-300/60 mt-1">Atlassian (1 Offer)</div>
+            <div className="text-2xl font-bold text-white">₹{highlights2026.highest} L</div>
+            <div className="text-[10px] text-emerald-300/60 mt-1">LinkedIn (2 Offers)</div>
           </div>
           <div className="bg-zinc-900 border border-white/10 p-4 rounded-2xl">
             <div className="text-xs text-zinc-500 font-bold uppercase mb-1">Average Package</div>
-            <div className="text-2xl font-bold text-white">₹{highlights2025.average} L</div>
-            <div className="text-[10px] text-zinc-600 mt-1">Median: ₹{highlights2025.median} L</div>
+            <div className="text-2xl font-bold text-white">₹{highlights2026.average} L</div>
+            <div className="text-[10px] text-zinc-600 mt-1">Median: ₹{highlights2026.median} L</div>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
            <div className="bg-zinc-900/50 border border-white/5 p-3 rounded-xl text-center">
-              <div className="text-lg font-bold text-white">{highlights2025.offers.high}</div>
-              <div className="text-[9px] text-zinc-500 uppercase font-bold">13L - 52L</div>
+              <div className="text-lg font-bold text-white">{highlights2026.offers.high}</div>
+              <div className="text-[9px] text-zinc-500 uppercase font-bold">&gt; 13L</div>
            </div>
            <div className="bg-zinc-900/50 border border-white/5 p-3 rounded-xl text-center">
-              <div className="text-lg font-bold text-white">{highlights2025.offers.mid}</div>
+              <div className="text-lg font-bold text-white">{highlights2026.offers.mid}</div>
               <div className="text-[9px] text-zinc-500 uppercase font-bold">6L - 13L</div>
            </div>
            <div className="bg-zinc-900/50 border border-white/5 p-3 rounded-xl text-center">
-              <div className="text-lg font-bold text-white">{highlights2025.offers.low}</div>
+              <div className="text-lg font-bold text-white">{highlights2026.offers.low}</div>
               <div className="text-[9px] text-zinc-500 uppercase font-bold">&lt; 6L</div>
            </div>
         </div>
@@ -200,26 +213,47 @@ export default function Placements() {
            </div>
            
            <div className="overflow-x-auto">
-             <table className="w-full text-left text-xs">
-               <thead className="bg-black/20 text-zinc-500 font-bold uppercase">
-                 <tr>
-                   <th className="p-3">Branch</th>
-                   <th className="p-3 text-right">Offers</th>
-                   <th className="p-3 text-right">% Total</th>
-                   <th className="p-3 text-right">% Abs</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-white/5 text-zinc-300">
-                 {batchStats[activeBatch].data.map((row, idx) => (
-                   <tr key={idx} className={row.branch === 'TOTAL' ? 'bg-white/5 font-bold text-white' : ''}>
-                     <td className="p-3">{row.branch}</td>
-                     <td className="p-3 text-right">{row.offers}</td>
-                     <td className="p-3 text-right">{row.totalPerc}</td>
-                     <td className="p-3 text-right">{row.absPerc}</td>
+             {batchStats[activeBatch].type === 'distribution' ? (
+               <table className="w-full text-left text-xs">
+                 <thead className="bg-black/20 text-zinc-500 font-bold uppercase">
+                   <tr>
+                     <th className="p-3">Category</th>
+                     <th className="p-3 text-right">Average (L)</th>
+                     <th className="p-3 text-right">Median (L)</th>
                    </tr>
-                 ))}
-               </tbody>
-             </table>
+                 </thead>
+                 <tbody className="divide-y divide-white/5 text-zinc-300">
+                   {batchStats[activeBatch].data.map((row, idx) => (
+                     <tr key={idx} className={row.category.includes('Batch') ? 'bg-white/5 font-bold text-white' : ''}>
+                       <td className="p-3">{row.category}</td>
+                       <td className="p-3 text-right">{row.avg}</td>
+                       <td className="p-3 text-right">{row.median}</td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             ) : (
+               <table className="w-full text-left text-xs">
+                 <thead className="bg-black/20 text-zinc-500 font-bold uppercase">
+                   <tr>
+                     <th className="p-3">Branch</th>
+                     <th className="p-3 text-right">Offers</th>
+                     <th className="p-3 text-right">% Total</th>
+                     <th className="p-3 text-right">% Abs</th>
+                   </tr>
+                 </thead>
+                 <tbody className="divide-y divide-white/5 text-zinc-300">
+                   {batchStats[activeBatch].data.map((row, idx) => (
+                     <tr key={idx} className={row.branch === 'TOTAL' ? 'bg-white/5 font-bold text-white' : ''}>
+                       <td className="p-3">{row.branch}</td>
+                       <td className="p-3 text-right">{row.offers}</td>
+                       <td className="p-3 text-right">{row.totalPerc}</td>
+                       <td className="p-3 text-right">{row.absPerc}</td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             )}
            </div>
         </div>
       </div>
