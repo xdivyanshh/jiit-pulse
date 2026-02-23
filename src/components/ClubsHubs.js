@@ -3,7 +3,7 @@ import {
   Users, ExternalLink, ChevronRight, Calendar, Instagram, 
   Globe, Zap, Music, Code, Cpu, Terminal, Radio, Database, 
   Mic, Star, Video, Palette, MessageSquare, TrendingUp,
-  Heart, Leaf, Trophy, X, Camera, Activity, BookOpen
+  Heart, Leaf, Trophy, X, Camera, Activity, BookOpen, Sun, HandHeart
 } from 'lucide-react';
 
 export default function ClubsHubs({ campus }) {
@@ -229,8 +229,32 @@ export default function ClubsHubs({ campus }) {
       color: "from-pink-400 to-rose-500",
       iconColor: "text-pink-400"
     },
+    {
+      id: "expressions",
+      name: "Expressions",
+      fullName: "The Painting Hub",
+      description: "The painting hub for creative expression on canvas. Hosts 'Live Art Gallery', 'Palette Punch', 'Bold Brush', and 'Caricature Booth'.",
+      category: "Creative",
+      members: "100+",
+      events: "10+",
+      icon: Palette,
+      color: "from-violet-600 to-fuchsia-600",
+      iconColor: "text-violet-400"
+    },
 
     // --- Literary & Business ---
+    {
+      id: "kalakriti",
+      name: "Kalakriti",
+      fullName: "The Rangoli Hub",
+      description: "Unleashes artistic creativity through Sand art, Rangoli, Junk Rangoli, Poster making, and Graffiti.",
+      category: "Creative",
+      members: "120+",
+      events: "8+",
+      icon: Sun,
+      color: "from-orange-500 to-red-500",
+      iconColor: "text-orange-400"
+    },
     {
       id: "parola",
       name: "Parola",
@@ -304,6 +328,18 @@ export default function ClubsHubs({ campus }) {
       icon: Globe,
       color: "from-emerald-500 to-cyan-500",
       iconColor: "text-emerald-400"
+    },
+    {
+      id: "adwitya",
+      name: "Adwitya",
+      fullName: "Service to Specially-Abled",
+      description: "Extends services to specially-abled persons. Imparts skills like basic computer education, maths, and creative skills. Conducts awareness programs.",
+      category: "Social",
+      members: "80+",
+      events: "5+",
+      icon: HandHeart,
+      color: "from-sky-500 to-blue-500",
+      iconColor: "text-sky-400"
     },
     {
       id: "ecoquence",
