@@ -3,12 +3,60 @@ import {
   Users, ExternalLink, ChevronRight, Calendar, Instagram, 
   Globe, Zap, Music, Code, Cpu, Terminal, Radio, Database, 
   Mic, Star, Video, Palette, MessageSquare, TrendingUp,
-  Heart, Leaf, Trophy, X, Camera, Activity, BookOpen, Sun, HandHeart
+  Heart, Leaf, Trophy, X, Camera, Activity, BookOpen, Sun, HandHeart, Check, Loader2
 } from 'lucide-react';
 
 export default function ClubsHubs({ campus }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [expandedClub, setExpandedClub] = useState(null);
+  
+  // Join Modal State
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [joiningClub, setJoiningClub] = useState(null);
+  const [joinFormData, setJoinFormData] = useState({
+    name: '',
+    course: '',
+    semester: '',
+    reason: '',
+    contact: ''
+  });
+  const [joinStatus, setJoinStatus] = useState('idle'); // idle, submitting, success, error
+
+  const openJoinModal = (club, e) => {
+    e.stopPropagation(); // Prevent card expansion
+    setJoiningClub(club);
+    setIsJoinModalOpen(true);
+    setJoinStatus('idle');
+  };
+
+  const closeJoinModal = () => {
+    setIsJoinModalOpen(false);
+    setJoiningClub(null);
+    setJoinFormData({ name: '', course: '', semester: '', reason: '', contact: '' });
+  };
+
+  const handleJoinSubmit = async (e) => {
+    e.preventDefault();
+    setJoinStatus('submitting');
+
+    // --- DATABASE INTEGRATION POINT ---
+    // This is where you would send the data to your database.
+    // Example: await fetch('/api/join', { method: 'POST', body: JSON.stringify(joinFormData) });
+    
+    try {
+      // Simulating network request
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log("Application Submitted:", { ...joinFormData, club: joiningClub?.name });
+      
+      setJoinStatus('success');
+      setTimeout(() => {
+        closeJoinModal();
+      }, 2000);
+    } catch (error) {
+      setJoinStatus('error');
+    }
+  };
+
   const longPressTimerRef = useRef(null);
 
   const handlePressStart = (club) => {
@@ -470,7 +518,10 @@ export default function ClubsHubs({ campus }) {
                  <button className="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-medium flex items-center justify-center gap-2 transition-colors border border-white/5">
                     <Instagram className="w-3.5 h-3.5" /> Socials
                  </button>
-                 <button className={`py-2.5 rounded-xl ${btnBg} text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${shadowColor}`}>
+                 <button 
+                    onClick={(e) => openJoinModal(club, e)}
+                    className={`py-2.5 rounded-xl ${btnBg} text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${shadowColor}`}
+                 >
                     Join Club <ChevronRight className="w-3.5 h-3.5" />
                  </button>
               </div>
@@ -529,6 +580,125 @@ export default function ClubsHubs({ campus }) {
                <button className={`w-full py-3 rounded-xl ${is128 ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2`}>
                   Visit Club Page <ExternalLink className="w-4 h-4" />
                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Join Club Modal */}
+      {isJoinModalOpen && joiningClub && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={closeJoinModal}>
+          <div className="bg-zinc-900 border border-white/10 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            
+            {/* Header */}
+            <div className={`p-6 border-b border-white/5 ${is128 ? 'bg-rose-950/30' : 'bg-indigo-950/30'}`}>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-xl font-bold text-white">Join {joiningClub.name}</h3>
+                  <p className="text-zinc-400 text-xs mt-1">Fill in your details to apply</p>
+                </div>
+                <button onClick={closeJoinModal} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors text-zinc-400 hover:text-white">
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Form */}
+            <div className="p-6 overflow-y-auto no-scrollbar">
+              {joinStatus === 'success' ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center space-y-4 animate-in zoom-in duration-300">
+                  <div className={`w-16 h-16 rounded-full ${is128 ? 'bg-rose-500/20 text-rose-500' : 'bg-indigo-500/20 text-indigo-500'} flex items-center justify-center mb-2`}>
+                    <Check className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold text-white">Application Sent!</h4>
+                  <p className="text-zinc-400 text-sm max-w-xs leading-relaxed">
+                    Your request to join <span className="text-white font-medium">{joiningClub.name}</span> has been submitted. The club admins will contact you soon.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleJoinSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Full Name</label>
+                    <input 
+                      required
+                      type="text"
+                      value={joinFormData.name}
+                      onChange={e => setJoinFormData({...joinFormData, name: e.target.value})}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder:text-zinc-700"
+                      placeholder="e.g. Aryan Sharma"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Course</label>
+                      <select 
+                        required
+                        value={joinFormData.course}
+                        onChange={e => setJoinFormData({...joinFormData, course: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                      >
+                        <option value="" disabled>Select</option>
+                        <option value="B.Tech">B.Tech</option>
+                        <option value="BCA">BCA</option>
+                        <option value="BBA">BBA</option>
+                        <option value="M.Tech">M.Tech</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Semester</label>
+                      <select 
+                        required
+                        value={joinFormData.semester}
+                        onChange={e => setJoinFormData({...joinFormData, semester: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                      >
+                        <option value="" disabled>Select</option>
+                        {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Contact (Phone/Email)</label>
+                    <input 
+                      required
+                      type="text"
+                      value={joinFormData.contact}
+                      onChange={e => setJoinFormData({...joinFormData, contact: e.target.value})}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder:text-zinc-700"
+                      placeholder="e.g. 9876543210"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Why do you want to join? <span className="text-zinc-600 normal-case font-normal">(Optional)</span></label>
+                    <textarea 
+                      rows={3}
+                      value={joinFormData.reason}
+                      onChange={e => setJoinFormData({...joinFormData, reason: e.target.value})}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white/30 transition-colors placeholder:text-zinc-700 resize-none"
+                      placeholder="Tell us briefly about your interest..."
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    disabled={joinStatus === 'submitting'}
+                    className={`w-full py-3.5 rounded-xl ${is128 ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {joinStatus === 'submitting' ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Submit Application
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
