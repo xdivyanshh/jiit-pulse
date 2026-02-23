@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { 
   Users, ExternalLink, ChevronRight, Calendar, Instagram, 
   Globe, Zap, Music, Code, Cpu, Terminal, Radio, Database, 
-  Mic, Star, Video, Palette, MessageSquare, TrendingUp, 
-  Heart, Leaf, Trophy, X 
+  Mic, Star, Video, Palette, MessageSquare, TrendingUp,
+  Heart, Leaf, Trophy, X, Camera
 } from 'lucide-react';
 
 export default function ClubsHubs({ campus }) {
@@ -193,6 +193,18 @@ export default function ClubsHubs({ campus }) {
     },
 
     // --- Creative & Visual Arts ---
+    {
+      id: "jpeg",
+      name: "JPEG",
+      fullName: "Jaypee Photographic Enthusiasts Guild",
+      description: "The official photography society. Conducts workshops on DSLR/editing, photo-walks, and exhibitions. Events include '30-30', 'Just Do It', and 'Snap Story'.",
+      category: "Creative",
+      members: "150+",
+      events: "20+",
+      icon: Camera,
+      color: "from-cyan-500 to-blue-500",
+      iconColor: "text-cyan-400"
+    },
     {
       id: "icreate",
       name: "iCreate",
