@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Utensils, Coffee, Moon, Info, Clock, CloudSun, UtensilsCrossed } from 'lucide-react';
+import { Utensils, Coffee, Moon, Info, Clock, CloudSun, UtensilsCrossed, AlertCircle } from 'lucide-react';
 // Import default data as fallback
 import { messMenu as defaultMenu, messTimings, messGuidelines } from '../data/mess';
 
@@ -42,12 +42,40 @@ export default function MessMenu({ menuData, campus }) {
   // Use passed data, or default to Sector 62 data, or empty if explicitly null
   const currentMenuData = menuData !== undefined ? menuData : defaultMenu;
 
+  const isOutdated = React.useMemo(() => {
+    if (!currentMenuData?.effectiveDate) return false;
+    
+    const getMonday = (d) => {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(date.setDate(diff));
+      const year = monday.getFullYear();
+      const month = String(monday.getMonth() + 1).padStart(2, '0');
+      const dt = String(monday.getDate()).padStart(2, '0');
+      return `${year}-${month}-${dt}`;
+    };
+    
+    const currentMonday = getMonday(new Date());
+    return currentMenuData.effectiveDate !== currentMonday;
+  }, [currentMenuData]);
+
   useEffect(() => {
     const todayIndex = new Date().getDay();
     setSelectedDay(days[todayIndex]);
   }, []);
 
   const menu = currentMenuData ? (currentMenuData[selectedDay] || {}) : {};
+
+  if (isOutdated) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-zinc-500 bg-zinc-900/20 rounded-3xl border border-dashed border-zinc-800/50">
+        <AlertCircle className="w-12 h-12 mb-3 opacity-20 text-amber-500" />
+        <p className="text-sm font-medium text-zinc-400">Menu for this week hasn't been updated.</p>
+        <p className="text-xs text-zinc-600 mt-1">Please check back later.</p>
+      </div>
+    );
+  }
 
   // If no menu data exists (Sector 128), show a placeholder
   if (!currentMenuData || Object.keys(currentMenuData).length === 0) {
@@ -92,9 +120,20 @@ export default function MessMenu({ menuData, campus }) {
             <Utensils className={`w-5 h-5 ${campus === '128' ? 'text-rose-500' : 'text-indigo-500'}`} />
             Daily Menu
           </h2>
-          <span className="text-[10px] font-bold text-zinc-400 bg-zinc-900/80 px-3 py-1.5 rounded-full border border-white/5 uppercase tracking-widest">
-            {selectedDay}
-          </span>
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] font-bold text-zinc-400 bg-zinc-900/80 px-3 py-1.5 rounded-full border border-white/5 uppercase tracking-widest">
+              {selectedDay}
+            </span>
+            {currentMenuData?.effectiveDate && (
+              <span className="text-[9px] text-zinc-600 mt-1 font-medium">
+                Week of {(() => {
+                  const [y, m, d] = currentMenuData.effectiveDate.split('-').map(Number);
+                  const date = new Date(y, m - 1, d);
+                  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                })()}
+              </span>
+            )}
+          </div>
         </div>
 
         <div key={selectedDay} className="grid gap-4">
