@@ -32,10 +32,10 @@ export default function AcademicCalendar() {
     { date: "09 Aug 2025", event: "Rakshabandhan", day: "Saturday" },
     { date: "15 Aug 2025", event: "Independence Day", day: "Friday" },
     { date: "02 Oct 2025", event: "Gandhi Jayanti", day: "Thursday" },
-    { date: "20 Oct 2025", displayDate: "20 Oct - 21 Oct 2025", event: "Deepawali", day: "Mon-Tue" },
+    { date: "19 Oct 2025", displayDate: "19 Oct - 26 Oct 2025", event: "Diwali Break", day: "Week-long" },
     { date: "25 Dec 2025", event: "Christmas", day: "Thursday" },
     { date: "26 Jan 2026", event: "Republic Day", day: "Monday" },
-    { date: "03 Mar 2026", displayDate: "03 Mar - 04 Mar 2026", event: "Holi", day: "Tue-Wed" },
+    { date: "01 Mar 2026", displayDate: "01 Mar - 08 Mar 2026", event: "Holi Break", day: "Week-long" },
     { date: "14 Apr 2026", event: "Ambedkar Jayanti", day: "Tuesday" },
   ];
 
