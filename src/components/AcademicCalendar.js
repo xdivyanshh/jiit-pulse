@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { CalendarDays, Sun, Star, BookOpen, Briefcase, CalendarPlus, Download, X } from 'lucide-react';
 
 export default function AcademicCalendar() {
-  const [activeTab, setActiveTab] = useState('odd');
+  const [activeTab, setActiveTab] = useState(() => {
+    const month = new Date().getMonth();
+    return (month >= 6 && month <= 11) ? 'odd' : 'even';
+  });
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const oddSemEvents = [
@@ -80,6 +83,13 @@ export default function AcademicCalendar() {
     return new Date(year, months[monthStr], day);
   };
 
+  const nextHolidayIndex = holidays.findIndex(h => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const hDate = parseDateString(h.date);
+    return hDate && hDate >= today;
+  });
+
   const addToGoogleCalendar = (item) => {
     const date = parseDateString(item.date);
     if (!date) return;
@@ -146,10 +156,12 @@ export default function AcademicCalendar() {
 
       {/* Timeline */}
       <div className="space-y-3">
-        {getEvents().map((item, idx) => (
+        {getEvents().map((item, idx) => {
+          const isNextHoliday = activeTab === 'holidays' && idx === nextHolidayIndex;
+          return (
           <div 
             key={idx}
-            className={`relative p-4 rounded-xl border border-white/5 flex gap-4 items-center transition-all duration-300 hover:bg-zinc-900 hover:scale-[1.01] group border-l-4 ${getTypeStyles(item.type || 'holiday')}`}
+            className={`relative p-4 rounded-xl border border-white/5 flex gap-4 items-center transition-all duration-300 hover:bg-zinc-900 hover:scale-[1.01] group border-l-4 ${getTypeStyles(item.type || 'holiday')} ${isNextHoliday ? 'bg-zinc-800/80 ring-1 ring-emerald-500/30' : ''}`}
             style={{ 
               animation: `slideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.05}s both` 
             }}
@@ -166,9 +178,12 @@ export default function AcademicCalendar() {
             <div className="w-px h-10 bg-white/10 group-hover:bg-white/20 transition-colors"></div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm text-zinc-200 group-hover:text-white transition-colors truncate">
-                {item.event}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm text-zinc-200 group-hover:text-white transition-colors truncate">
+                  {item.event}
+                </h3>
+                {isNextHoliday && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">NEXT</span>}
+              </div>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[10px] text-zinc-500 font-medium bg-black/20 px-2 py-0.5 rounded border border-white/5">
                   {item.day || item.date}
@@ -187,7 +202,7 @@ export default function AcademicCalendar() {
               <CalendarPlus className="w-4 h-4" />
             </button>
           </div>
-        ))}
+        )})}
       </div>
 
       {/* Calendar Modal */}
