@@ -32,10 +32,10 @@ export default function AcademicCalendar() {
     { date: "09 Aug 2025", event: "Rakshabandhan", day: "Saturday" },
     { date: "15 Aug 2025", event: "Independence Day", day: "Friday" },
     { date: "02 Oct 2025", event: "Gandhi Jayanti", day: "Thursday" },
-    { date: "20 Oct 2025", event: "Deepawali", day: "Mon-Tue" },
+    { date: "20 Oct 2025", displayDate: "20 Oct - 21 Oct 2025", event: "Deepawali", day: "Mon-Tue" },
     { date: "25 Dec 2025", event: "Christmas", day: "Thursday" },
     { date: "26 Jan 2026", event: "Republic Day", day: "Monday" },
-    { date: "03 Mar 2026", event: "Holi", day: "Tue-Wed" },
+    { date: "03 Mar 2026", displayDate: "03 Mar - 04 Mar 2026", event: "Holi", day: "Tue-Wed" },
     { date: "14 Apr 2026", event: "Ambedkar Jayanti", day: "Tuesday" },
   ];
 
@@ -186,7 +186,7 @@ export default function AcademicCalendar() {
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[10px] text-zinc-500 font-medium bg-black/20 px-2 py-0.5 rounded border border-white/5">
-                  {item.day || item.displayDate || item.date}
+                  {item.displayDate || item.day || item.date}
                 </span>
                 {getIcon(item.type || 'holiday')}
               </div>
