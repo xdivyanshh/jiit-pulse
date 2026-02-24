@@ -14,18 +14,18 @@ export default function AcademicCalendar() {
     { date: "29 Aug 2025", event: "T1 Examinations Start", type: "exam" },
     { date: "10 Oct 2025", event: "Mid Term Viva (Labs)", type: "exam" },
     { date: "10 Oct 2025", event: "T2 Examinations Start", type: "exam" },
-    { date: "19 Oct 2025", event: "Diwali Break Starts", type: "holiday" },
+    { date: "19 Oct 2025", displayDate: "19 Oct - 26 Oct 2025", event: "Diwali Break", type: "holiday" },
     { date: "01 Dec 2025", event: "End Semester Exams Start", type: "exam" },
-    { date: "14 Dec 2025", event: "Winter Vacation Starts", type: "holiday" },
+    { date: "14 Dec 2025", displayDate: "14 Dec 2025 - 01 Jan 2026", event: "Winter Vacation", type: "holiday" },
   ];
 
   const evenSemEvents = [
     { date: "02 Jan 2026", event: "Registration & Classes", type: "academic" },
     { date: "10 Feb 2026", event: "T1 Examinations Start", type: "exam" },
-    { date: "01 Mar 2026", event: "Holi Break Starts", type: "holiday" },
+    { date: "01 Mar 2026", displayDate: "01 Mar - 08 Mar 2026", event: "Holi Break", type: "holiday" },
     { date: "24 Mar 2026", event: "T2 Examinations Start", type: "exam" },
     { date: "11 May 2026", event: "End Semester Exams Start", type: "exam" },
-    { date: "27 May 2026", event: "Summer Vacation Starts", type: "holiday" },
+    { date: "27 May 2026", displayDate: "27 May - 15 Jul 2026", event: "Summer Vacation", type: "holiday" },
   ];
 
   const holidays = [
@@ -186,7 +186,7 @@ export default function AcademicCalendar() {
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[10px] text-zinc-500 font-medium bg-black/20 px-2 py-0.5 rounded border border-white/5">
-                  {item.day || item.date}
+                  {item.day || item.displayDate || item.date}
                 </span>
                 {getIcon(item.type || 'holiday')}
               </div>
