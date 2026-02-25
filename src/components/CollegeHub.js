@@ -14,9 +14,14 @@ import BottomNav from './BottomNav';
 import FacultyDirectory from './FacultyDirectory';
 import MessMenu from './MessMenu';
 import ClubsHubs from './ClubsHubs';
-import AttendanceTracker from './AttendanceTracker';
 import AcademicCalendar from './AcademicCalendar';
 import Placements from './Placements';
+import AttendanceContainer from './AttendanceContainer';
+import Login from './Login';
+import { Toaster } from './sonner';
+
+// Import JIITWebkiosk
+import { WebPortal } from 'jsjiit';
 
 // NEW: Import the database helper
 // import { fetchDatabase } from '../lib/db';
@@ -33,6 +38,10 @@ export default function CollegeHub({ campus, onBack }) {
   const [currentTime, setCurrentTime] = useState(null);
   const [activeTab, setActiveTab] = useState("schedule");
   const [mounted, setMounted] = useState(false);
+
+  // --- WEBKIOSK CLIENT ---
+  const [w] = useState(new WebPortal());
+  const [isWebkioskLoggedIn, setIsWebkioskLoggedIn] = useState(false);
   
   // --- FETCH DATA FROM GITHUB ---
 
@@ -416,6 +425,7 @@ export default function CollegeHub({ campus, onBack }) {
   return (
     <div className={`min-h-screen bg-black text-zinc-200 font-sans ${campus === '128' ? 'selection:bg-rose-500/30' : 'selection:bg-indigo-500/30'} relative overflow-hidden`}>
       <style>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+      <Toaster />
 
       {/* Ambient Background */}
       <div className="fixed inset-0 pointer-events-none">
@@ -729,7 +739,13 @@ export default function CollegeHub({ campus, onBack }) {
           </div>
         )}
 
-        {activeTab === 'attendance' && <AttendanceTracker selectedBatch={selectedBatch} scheduleData={allBatches} />}
+        {activeTab === 'attendance' && (
+          isWebkioskLoggedIn ? (
+            <AttendanceContainer w={w} />
+          ) : (
+            <Login w={w} onLoginSuccess={() => setIsWebkioskLoggedIn(true)} onDemoLogin={() => setIsWebkioskLoggedIn(true)} />
+          )
+        )}
         {activeTab === 'search' && <FacultyDirectory facultyData={facultyDataForCampus} campus={campus} />}
         {activeTab === 'clubs' && <ClubsHubs campus={campus} />}
         {activeTab === 'menu' && <MessMenu menuData={messMenuData} campus={campus} />}
