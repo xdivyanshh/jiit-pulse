@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { TrendingUp, AlertCircle, Percent, Hash } from 'lucide-react';
+import { TrendingUp, AlertCircle, Percent, Hash, MapPin, ChevronDown } from 'lucide-react';
 
 export default function Cutoff() {
-  const [activeTab, setActiveTab] = useState('percentage'); // 'percentage' or 'rank'
+  const [mode, setMode] = useState('percentage'); // 'percentage' or 'rank'
+  const [year, setYear] = useState('2025');
+  const [campus, setCampus] = useState('62'); // '62' or '128'
 
   const percentageData = [
     { campus: "JIIT62", prog: "B.Tech", branch: "BIO", data: { "2023": ["61.00", "96.33"], "2024": ["60.00", "93.33"], "2025": ["61.33", "98.33"] } },
@@ -39,7 +41,13 @@ export default function Cutoff() {
     { campus: "JIIT62", prog: "INTGT", branch: "ECE", data: { "2023": ["100798", "208680"], "2024": ["119167", "131966"], "2025": ["254381", "370024"] } },
   ];
 
-  const currentData = activeTab === 'percentage' ? percentageData : rankData;
+  const currentData = mode === 'percentage' ? percentageData : rankData;
+
+  const filteredData = currentData.filter(item => {
+    if (campus === '62') return item.campus.includes('62');
+    if (campus === '128') return item.campus.includes('128');
+    return false;
+  });
 
   return (
     <div className="space-y-6 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -49,75 +57,115 @@ export default function Cutoff() {
           <TrendingUp className="w-6 h-6 text-emerald-500" />
           Cut-offs
         </h2>
-        <div className="flex bg-zinc-900/80 rounded-lg p-1 border border-white/10">
+      </div>
+
+      {/* Controls Container */}
+      <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 space-y-4">
+        
+        {/* Mode Toggle */}
+        <div className="flex bg-zinc-900 p-1 rounded-xl border border-white/5">
           <button 
-            onClick={() => setActiveTab('percentage')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${activeTab === 'percentage' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+            onClick={() => setMode('percentage')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${mode === 'percentage' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-            <Percent className="w-3 h-3" />
+            <Percent className="w-3.5 h-3.5" />
             10+2 Merit
           </button>
           <button 
-            onClick={() => setActiveTab('rank')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${activeTab === 'rank' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+            onClick={() => setMode('rank')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${mode === 'rank' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-            <Hash className="w-3 h-3" />
+            <Hash className="w-3.5 h-3.5" />
             JEE Rank
           </button>
         </div>
-      </div>
 
-      {/* Info Card */}
-      <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex gap-3 items-start">
-        <AlertCircle className="w-5 h-5 text-zinc-500 shrink-0 mt-0.5" />
-        <div className="text-xs text-zinc-400 leading-relaxed">
-          <p className="mb-1"><strong className="text-zinc-300">Min:</strong> Opening Rank/Percentage</p>
-          <p><strong className="text-zinc-300">Max:</strong> Closing Rank/Percentage</p>
+        <div className="flex gap-3">
+            {/* Campus Toggle */}
+            <div className="flex-1 flex bg-zinc-900 p-1 rounded-xl border border-white/5">
+                <button 
+                    onClick={() => setCampus('62')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${campus === '62' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                >
+                    Sec 62
+                </button>
+                <button 
+                    onClick={() => setCampus('128')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${campus === '128' ? 'bg-rose-600 text-white shadow-lg shadow-rose-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
+                >
+                    Sec 128
+                </button>
+            </div>
+
+            {/* Year Selector */}
+            <div className="relative min-w-[90px]">
+                <select 
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="w-full h-full bg-zinc-900 text-white text-xs font-bold px-3 rounded-xl border border-white/5 appearance-none outline-none focus:border-white/20"
+                >
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500 pointer-events-none" />
+            </div>
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-white/5 text-zinc-500 text-[10px] font-bold uppercase tracking-wider border-b border-white/5">
-                <th className="p-4 sticky left-0 bg-zinc-900 z-10 border-r border-white/5">Branch</th>
-                <th className="p-4 text-center min-w-[100px]">2025</th>
-                <th className="p-4 text-center min-w-[100px]">2024</th>
-                <th className="p-4 text-center min-w-[100px]">2023</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {currentData.map((row, idx) => (
-                <tr key={idx} className="hover:bg-white/5 transition-colors group">
-                  <td className="p-4 sticky left-0 bg-zinc-900 group-hover:bg-zinc-800 transition-colors border-r border-white/5 z-10">
-                    <div className="font-bold text-white text-xs">{row.branch}</div>
-                    <div className="text-[9px] text-zinc-500 mt-0.5">{row.campus} • {row.prog}</div>
-                  </td>
-                  {['2025', '2024', '2023'].map(year => (
-                    <td key={year} className="p-4 text-center">
-                      {row.data[year][0] === '-' ? (
-                        <span className="text-zinc-600 text-xs">-</span>
-                      ) : (
-                        <div className="flex flex-col gap-1">
-                          <span className="text-xs font-medium text-emerald-400">{row.data[year][0]}</span>
-                          <div className="h-px w-full bg-white/5"></div>
-                          <span className="text-xs font-medium text-rose-400">{row.data[year][1]}</span>
+      {/* Results List */}
+      <div className="space-y-3">
+        {filteredData.map((item, idx) => {
+            const [min, max] = item.data[year] || ["-", "-"];
+            const isAvailable = min !== "-" && max !== "-";
+            
+            return (
+                <div key={idx} className="bg-zinc-900/30 border border-white/5 rounded-xl p-4 flex items-center justify-between group hover:bg-zinc-900/50 transition-colors">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-sm font-bold text-white">{item.branch}</h3>
+                            <span className="text-[10px] font-bold text-zinc-500 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">{item.prog}</span>
                         </div>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        <div className="text-xs text-zinc-500 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {item.campus}
+                        </div>
+                    </div>
+
+                    <div className="text-right">
+                        {isAvailable ? (
+                            <div className="flex items-center gap-4">
+                                <div>
+                                    <div className="text-[10px] text-zinc-500 uppercase font-bold mb-0.5">Opening</div>
+                                    <div className="text-sm font-bold text-emerald-400">{min}</div>
+                                </div>
+                                <div className="w-px h-8 bg-white/10"></div>
+                                <div>
+                                    <div className="text-[10px] text-zinc-500 uppercase font-bold mb-0.5">Closing</div>
+                                    <div className="text-sm font-bold text-rose-400">{max}</div>
+                                </div>
+                            </div>
+                        ) : (
+                            <span className="text-xs font-medium text-zinc-600 italic">Data N/A</span>
+                        )}
+                    </div>
+                </div>
+            );
+        })}
+        
+        {filteredData.length === 0 && (
+            <div className="text-center py-10 text-zinc-500 text-sm">
+                No branches found for this selection.
+            </div>
+        )}
       </div>
       
-      <p className="text-center text-[10px] text-zinc-600">
-        Data sourced from official counseling records.
-      </p>
+      <div className="flex items-start gap-2 bg-zinc-900/50 p-3 rounded-xl border border-white/5">
+        <AlertCircle className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
+        <p className="text-xs text-zinc-500 leading-relaxed">
+            Cut-offs shown are for general category. Actual counseling cut-offs may vary slightly based on rounds and vacancies.
+        </p>
+      </div>
     </div>
   );
 }
