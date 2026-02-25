@@ -83,11 +83,11 @@ export default function AcademicCalendar() {
     return new Date(year, months[monthStr], day);
   };
 
-  const nextHolidayIndex = holidays.findIndex(h => {
+  const nextEventIndex = getEvents().findIndex(e => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const hDate = parseDateString(h.date);
-    return hDate && hDate >= today;
+    const eDate = parseDateString(e.date);
+    return eDate && eDate >= today;
   });
 
   const addToGoogleCalendar = (item) => {
@@ -157,11 +157,11 @@ export default function AcademicCalendar() {
       {/* Timeline */}
       <div className="space-y-3">
         {getEvents().map((item, idx) => {
-          const isNextHoliday = activeTab === 'holidays' && idx === nextHolidayIndex;
+          const isNextEvent = idx === nextEventIndex;
           return (
           <div 
             key={idx}
-            className={`relative p-4 rounded-xl border border-white/5 flex gap-4 items-center transition-all duration-300 hover:bg-zinc-900 hover:scale-[1.01] group border-l-4 ${getTypeStyles(item.type || 'holiday')} ${isNextHoliday ? 'bg-zinc-800/80 ring-1 ring-emerald-500/30' : ''}`}
+            className={`relative p-4 rounded-xl border border-white/5 flex gap-4 items-center transition-all duration-300 hover:bg-zinc-900 hover:scale-[1.01] group border-l-4 ${getTypeStyles(item.type || 'holiday')} ${isNextEvent ? 'bg-zinc-800 ring-1 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]' : ''}`}
             style={{ 
               animation: `slideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${idx * 0.05}s both` 
             }}
@@ -182,7 +182,7 @@ export default function AcademicCalendar() {
                 <h3 className="font-bold text-sm text-zinc-200 group-hover:text-white transition-colors truncate">
                   {item.event}
                 </h3>
-                {isNextHoliday && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">NEXT</span>}
+                {isNextEvent && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">NEXT</span>}
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[10px] text-zinc-500 font-medium bg-black/20 px-2 py-0.5 rounded border border-white/5">
