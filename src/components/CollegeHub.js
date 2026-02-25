@@ -17,7 +17,7 @@ import ClubsHubs from './ClubsHubs';
 import AcademicCalendar from './AcademicCalendar';
 import Placements from './Placements';
 import AttendanceContainer from './AttendanceContainer';
-import Login from './Login';
+import WebkioskLogin from './WebkioskLogin';
 import { Toaster } from './sonner';
 
 // Import JIITWebkiosk
@@ -42,6 +42,7 @@ export default function CollegeHub({ campus, onBack }) {
   // --- WEBKIOSK CLIENT ---
   const [w] = useState(new WebPortal());
   const [isWebkioskLoggedIn, setIsWebkioskLoggedIn] = useState(false);
+  const [attendanceData, setAttendanceData] = useState(null);
   
   // --- FETCH DATA FROM GITHUB ---
 
@@ -741,9 +742,12 @@ export default function CollegeHub({ campus, onBack }) {
 
         {activeTab === 'attendance' && (
           isWebkioskLoggedIn ? (
-            <AttendanceContainer w={w} />
+            <AttendanceContainer w={w} attendanceData={attendanceData} />
           ) : (
-            <Login w={w} onLoginSuccess={() => setIsWebkioskLoggedIn(true)} onDemoLogin={() => setIsWebkioskLoggedIn(true)} />
+            <WebkioskLogin onLoginSuccess={(data) => {
+              setAttendanceData(data);
+              setIsWebkioskLoggedIn(true);
+            }} />
           )
         )}
         {activeTab === 'search' && <FacultyDirectory facultyData={facultyDataForCampus} campus={campus} />}
