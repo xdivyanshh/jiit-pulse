@@ -20,7 +20,7 @@ import AttendanceContainer from './AttendanceContainer';
 import Login from './Login';
 import { Toaster } from './sonner';
 
-// Import JIITWebkiosk
+// Import JIITWebkiosk and MockWebPortal
 import { WebPortal } from 'jsjiit';
 
 // NEW: Import the database helper

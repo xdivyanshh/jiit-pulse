@@ -72,7 +72,7 @@ export default function Login({ onLoginSuccess, onDemoLogin, w }) {
           toast.error("Please check your internet connection. If connected, JIIT Web Portal server is unavailable.");
         } else {
           console.error("Login failed:", error);
-          toast.error("Login failed. Please check your credentials.");
+          toast.error(`Login failed: ${error.message || "Check credentials"}`);
         }
         setLoginStatus((prev) => ({
           ...prev,
