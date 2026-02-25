@@ -14,6 +14,7 @@ import BottomNav from './BottomNav';
 import FacultyDirectory from './FacultyDirectory';
 import MessMenu from './MessMenu';
 import ClubsHubs from './ClubsHubs';
+import AttendanceTracker from './AttendanceTracker';
 import AcademicCalendar from './AcademicCalendar';
 import Placements from './Placements';
 
@@ -728,6 +729,7 @@ export default function CollegeHub({ campus, onBack }) {
           </div>
         )}
 
+        {activeTab === 'attendance' && <AttendanceTracker selectedBatch={selectedBatch} scheduleData={allBatches} />}
         {activeTab === 'search' && <FacultyDirectory facultyData={facultyDataForCampus} campus={campus} />}
         {activeTab === 'clubs' && <ClubsHubs campus={campus} />}
         {activeTab === 'menu' && <MessMenu menuData={messMenuData} campus={campus} />}
