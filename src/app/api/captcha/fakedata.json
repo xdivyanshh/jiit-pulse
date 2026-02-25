@@ -1,0 +1,82 @@
+{
+  "profile": {
+    "StudentName": "Demo User",
+    "EnrollmentNo": "99101010",
+    "Program": "B.Tech (CSE)",
+    "CurrentSemester": "6"
+  },
+  "attendance": {
+    "semestersData": {
+      "semesters": [
+        {
+          "registration_code": "2024EVESEM",
+          "period": "2024 Even Semester"
+        }
+      ],
+      "latest_header": {
+        "registration_code": "2024EVESEM",
+        "period": "2024 Even Semester"
+      }
+    },
+    "attendanceData": {
+      "2024EVESEM": {
+        "studentattendancelist": [
+          {
+            "subjectcode": "15B11CI611",
+            "subjectname": "THEORY OF COMPUTATION",
+            "L_total": "40",
+            "L_present": "35",
+            "T_total": "10",
+            "T_present": "9",
+            "P_total": "0",
+            "P_present": "0",
+            "total_class": "50",
+            "total_present": "44"
+          }
+        ]
+      }
+    },
+    "subjectAttendanceData": {}
+  },
+  "grades": {
+    "gradesData": [
+      {
+        "pointsecured": "180",
+        "earnedcredit": "22",
+        "sgpa": "8.2",
+        "cgpa": "8.0",
+        "semestercode": "2023ODDSEM"
+      }
+    ],
+    "gradeCardSemesters": [],
+    "gradeCards": {},
+    "marksSemesters": [],
+    "marksData": {}
+  },
+  "subjects": {
+    "semestersData": {
+      "semesters": []
+    },
+    "subjectData": {
+      "2024EVESEM": {
+        "subjects": [
+          {
+            "subjectcode": "15B11CI611",
+            "subjectname": "THEORY OF COMPUTATION",
+            "employeename": "Dr. Teacher"
+          }
+        ]
+      }
+    },
+    "choiceSubjects": {}
+  },
+  "fees": {
+    "fee_summary": [],
+    "fines_msc_charges": []
+  },
+  "exams": {
+    "examSemesters": [],
+    "examEvents": {},
+    "examSchedule": {}
+  }
+}

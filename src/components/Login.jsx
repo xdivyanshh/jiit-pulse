@@ -68,8 +68,13 @@ export default function Login({ onLoginSuccess, onDemoLogin, w }) {
         ) {
           console.error("JIIT Web Portal server is temporarily unavailable");
           toast.error("JIIT Web Portal server is temporarily unavailable. Please try again later.");
-        } else if (error instanceof LoginError && error.message.includes("Failed to fetch")) {
-          toast.error("Please check your internet connection. If connected, JIIT Web Portal server is unavailable.");
+        } else if (
+          (error instanceof LoginError && error.message.includes("Failed to fetch")) ||
+          error.message === "Load failed" ||
+          error.message.includes("NetworkError")
+        ) {
+          console.error("Network Error:", error);
+          toast.error("Network error: Unable to connect. If you are running locally, ensure you are using a CORS proxy.");
         } else {
           console.error("Login failed:", error);
           toast.error(`Login failed: ${error.message || "Check credentials"}`);
