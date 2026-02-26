@@ -124,7 +124,8 @@ export default function ClubsHubs({ campus }) {
       color: "from-indigo-500 to-purple-500",
       iconColor: "text-indigo-400",
       socials: {
-        website: "https://www.cicr.in/",
+        website: "https://ucrjiit.com/",
+        instagram: "https://www.instagram.com/ucrjiit/",
         email: "contact@cicr.in"
       }
     },
