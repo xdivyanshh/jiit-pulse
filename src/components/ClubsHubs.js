@@ -3,7 +3,8 @@ import {
   Users, ExternalLink, ChevronRight, Calendar, Instagram, 
   Globe, Zap, Music, Code, Cpu, Terminal, Radio, Database, 
   Mic, Star, Video, Palette, MessageSquare, TrendingUp,
-  Heart, Leaf, Trophy, X, Camera, Activity, BookOpen, Sun, HandHeart, Check, Loader2
+  Heart, Leaf, Trophy, X, Camera, Activity, BookOpen, Sun, HandHeart, Check, Loader2,
+  Mail, Facebook
 } from 'lucide-react';
 
 export default function ClubsHubs({ campus }) {
@@ -76,7 +77,7 @@ export default function ClubsHubs({ campus }) {
   };
 
   const clubs = [
-    // --- Technical: Coding & Dev ---
+    // --- CLUBS WITH SOCIALS (PRIORITIZED) ---
     {
       id: "knuth",
       name: "Knuth",
@@ -87,8 +88,79 @@ export default function ClubsHubs({ campus }) {
       events: "20+",
       icon: Terminal,
       color: "from-emerald-500 to-teal-500",
-      iconColor: "text-emerald-400"
+      iconColor: "text-emerald-400",
+      socials: {
+        website: "https://knuth-programming-hub.github.io/",
+        facebook: "https://www.facebook.com/groups/jiit.knuth",
+        telegram: "https://t.me/joinchat/LGo0IhZoPRjRjBJHJPf3OA",
+        unstop: "https://unstop.com/c/knuth-programming-hub-jiit-974052"
+      }
     },
+    {
+      id: "ucr",
+      name: "uCR",
+      fullName: "Microcontroller Based System and Robotics Hub",
+      description: "Sanctuary for hardware enthusiasts. 'Building the future' with Arduino, sensors, and automation. Organizes inter-college robotics battles. Operates as CICR.",
+      category: "Technical",
+      members: "300+",
+      events: "8+",
+      icon: Cpu,
+      color: "from-indigo-500 to-purple-500",
+      iconColor: "text-indigo-400",
+      socials: {
+        website: "https://www.cicr.in/",
+        email: "contact@cicr.in"
+      }
+    },
+    {
+      id: "ieee",
+      name: "IEEE",
+      fullName: "IEEE Student Branch",
+      description: "World’s largest technical professional org. Hosts 'Xenith', 'Enigma', and humanitarian engineering via IEEE SIGHT.",
+      category: "Technical",
+      members: "450+",
+      events: "10+",
+      icon: Globe,
+      color: "from-blue-600 to-indigo-600",
+      iconColor: "text-blue-500",
+      socials: {
+        unstop: "https://unstop.com/c/ieee-student-branch-jiit-noida-966934"
+      }
+    },
+    {
+      id: "parola",
+      name: "Parola",
+      fullName: "The Literary Hub",
+      description: "Debating, extempore, and MUNs. Organizes the 'Jaypee Youth Parliament' and 'Jaypee Model United Nations' (JMUN).",
+      category: "Literary",
+      members: "150+",
+      events: "10+",
+      icon: MessageSquare,
+      color: "from-blue-400 to-indigo-500",
+      iconColor: "text-blue-400",
+      socials: {
+        website: "http://www.jaypeemun.org",
+        facebook: "https://www.facebook.com/JaypeeMUN/",
+        instagram: "https://www.instagram.com/jaypeemun/"
+      }
+    },
+    {
+      id: "ecoquence",
+      name: "EcoQuence",
+      fullName: "The Environment Hub",
+      description: "Focuses on ecological responsibility and sustainable campus living.",
+      category: "Social",
+      members: "100+",
+      events: "5+",
+      icon: Leaf,
+      color: "from-green-500 to-lime-500",
+      iconColor: "text-green-400",
+      socials: {
+        email: "EcoQuenceJIIT@gmail.com"
+      }
+    },
+
+    // --- REST OF THE CLUBS ---
     {
       id: "bitwise",
       name: "Bit-Wise",
@@ -125,20 +197,6 @@ export default function ClubsHubs({ campus }) {
       color: "from-orange-500 to-pink-500",
       iconColor: "text-orange-400"
     },
-    
-    // --- Technical: Hardware & Electronics ---
-    {
-      id: "ucr",
-      name: "uCR",
-      fullName: "Microcontroller Based System and Robotics Hub",
-      description: "Sanctuary for hardware enthusiasts. 'Building the future' with Arduino, sensors, and automation. Organizes inter-college robotics battles.",
-      category: "Technical",
-      members: "300+",
-      events: "8+",
-      icon: Cpu,
-      color: "from-indigo-500 to-purple-500",
-      iconColor: "text-indigo-400"
-    },
     {
       id: "cice",
       name: "CICE",
@@ -150,20 +208,6 @@ export default function ClubsHubs({ campus }) {
       icon: Radio,
       color: "from-yellow-500 to-orange-500",
       iconColor: "text-yellow-400"
-    },
-
-    // --- Technical: Specialized & Professional ---
-    {
-      id: "ieee",
-      name: "IEEE",
-      fullName: "IEEE Student Branch",
-      description: "World’s largest technical professional org. Hosts 'Xenith', 'Enigma', and humanitarian engineering via IEEE SIGHT.",
-      category: "Technical",
-      members: "450+",
-      events: "10+",
-      icon: Globe,
-      color: "from-blue-600 to-indigo-600",
-      iconColor: "text-blue-500"
     },
     {
       id: "acm",
@@ -289,8 +333,6 @@ export default function ClubsHubs({ campus }) {
       color: "from-violet-600 to-fuchsia-600",
       iconColor: "text-violet-400"
     },
-
-    // --- Literary & Business ---
     {
       id: "kalakriti",
       name: "Kalakriti",
@@ -302,18 +344,6 @@ export default function ClubsHubs({ campus }) {
       icon: Sun,
       color: "from-orange-500 to-red-500",
       iconColor: "text-orange-400"
-    },
-    {
-      id: "parola",
-      name: "Parola",
-      fullName: "The Literary Hub",
-      description: "Debating, extempore, and MUNs. Organizes the 'Jaypee Youth Parliament'.",
-      category: "Literary",
-      members: "150+",
-      events: "10+",
-      icon: MessageSquare,
-      color: "from-blue-400 to-indigo-500",
-      iconColor: "text-blue-400"
     },
     {
       id: "pageturner",
@@ -389,20 +419,6 @@ export default function ClubsHubs({ campus }) {
       color: "from-sky-500 to-blue-500",
       iconColor: "text-sky-400"
     },
-    {
-      id: "ecoquence",
-      name: "EcoQuence",
-      fullName: "The Environment Hub",
-      description: "Focuses on ecological responsibility and sustainable campus living.",
-      category: "Social",
-      members: "100+",
-      events: "5+",
-      icon: Leaf,
-      color: "from-green-500 to-lime-500",
-      iconColor: "text-green-400"
-    },
-
-    // --- Sports ---
     {
       id: "sports",
       name: "Sports Hub",
@@ -577,7 +593,29 @@ export default function ClubsHubs({ campus }) {
                   </div>
                </div>
 
-               <button className={`w-full py-3 rounded-xl ${is128 ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2`}>
+               {expandedClub.socials && (
+                 <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                    {Object.entries(expandedClub.socials).map(([key, url]) => (
+                      <a 
+                        key={key} 
+                        href={key === 'email' ? `mailto:${url}` : url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex-1 min-w-[80px] py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-zinc-400 hover:text-white transition-colors flex flex-col items-center justify-center gap-1.5"
+                      >
+                        {key === 'instagram' && <Instagram size={16} />}
+                        {key === 'facebook' && <Facebook size={16} />}
+                        {key === 'website' && <Globe size={16} />}
+                        {key === 'email' && <Mail size={16} />}
+                        {key === 'telegram' && <MessageSquare size={16} />}
+                        {!['instagram', 'facebook', 'website', 'email', 'telegram'].includes(key) && <ExternalLink size={16} />}
+                        <span className="text-[9px] font-bold uppercase tracking-wider">{key}</span>
+                      </a>
+                    ))}
+                 </div>
+               )}
+
+               <button className={`w-full py-3 rounded-xl ${is128 ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 mt-2`}>
                   Visit Club Page <ExternalLink className="w-4 h-4" />
                </button>
             </div>
