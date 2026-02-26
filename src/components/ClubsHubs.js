@@ -188,7 +188,24 @@ export default function ClubsHubs({ campus }) {
       events: "15+",
       icon: Code,
       color: "from-blue-500 to-cyan-500",
-      iconColor: "text-blue-400"
+      iconColor: "text-blue-400",
+      campus: "128"
+    },
+    {
+      id: "cicr",
+      name: "CICR",
+      fullName: "Creative & Innovative Cell in Robotics",
+      description: "Premier technical club at JIIT Sector-128, Noida, focused on robotics research, electronics design, and prototyping.",
+      category: "Technical",
+      members: "100+",
+      events: "5+",
+      icon: Cpu,
+      color: "from-orange-500 to-red-500",
+      iconColor: "text-orange-400",
+      campus: "128",
+      socials: {
+        website: "https://www.cicr.in/"
+      }
     },
     {
       id: "gdsc",
@@ -452,9 +469,10 @@ export default function ClubsHubs({ campus }) {
 
   const categories = ['All', 'Technical', 'Cultural', 'Literary', 'Social', 'Sports', 'Creative'];
   
-  const filteredClubs = activeCategory === 'All' 
-    ? clubs 
-    : clubs.filter(c => c.category === activeCategory);
+  const filteredClubs = clubs.filter(c => {
+    const clubCampus = c.campus || '62';
+    return clubCampus === campus && (activeCategory === 'All' || c.category === activeCategory);
+  });
 
   const is128 = campus === '128';
   const accentColor = is128 ? 'text-rose-500' : 'text-indigo-500';
