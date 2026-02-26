@@ -106,6 +106,7 @@ export default function ClubsHubs({ campus }) {
       iconColor: "text-emerald-400",
       socials: {
         website: "https://knuth-programming-hub.github.io/",
+        instagram: "https://www.instagram.com/knuth_jiit/",
         facebook: "https://www.facebook.com/groups/jiit.knuth",
         telegram: "https://t.me/joinchat/LGo0IhZoPRjRjBJHJPf3OA",
         unstop: "https://unstop.com/c/knuth-programming-hub-jiit-974052"
