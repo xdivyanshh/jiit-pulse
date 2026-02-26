@@ -76,6 +76,21 @@ export default function ClubsHubs({ campus }) {
     }
   };
 
+  const getPrimaryLink = (club) => {
+    if (!club.socials) return null;
+    // Priority: Website -> Instagram -> Facebook -> LinkedIn -> Unstop -> Email -> Any
+    if (club.socials.website) return club.socials.website;
+    if (club.socials.instagram) return club.socials.instagram;
+    if (club.socials.facebook) return club.socials.facebook;
+    if (club.socials.linkedin) return club.socials.linkedin;
+    if (club.socials.unstop) return club.socials.unstop;
+    
+    const firstKey = Object.keys(club.socials)[0];
+    const firstVal = club.socials[firstKey];
+    if (firstKey === 'email') return `mailto:${firstVal}`;
+    return firstVal;
+  };
+
   const clubs = [
     // --- CLUBS WITH SOCIALS (PRIORITIZED) ---
     {
@@ -531,7 +546,10 @@ export default function ClubsHubs({ campus }) {
 
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-2">
-                 <button className="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-medium flex items-center justify-center gap-2 transition-colors border border-white/5">
+                 <button 
+                    onClick={(e) => { e.stopPropagation(); setExpandedClub(club); }}
+                    className="py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-medium flex items-center justify-center gap-2 transition-colors border border-white/5"
+                 >
                     <Instagram className="w-3.5 h-3.5" /> Socials
                  </button>
                  <button 
@@ -615,9 +633,20 @@ export default function ClubsHubs({ campus }) {
                  </div>
                )}
 
-               <button className={`w-full py-3 rounded-xl ${is128 ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 mt-2`}>
-                  Visit Club Page <ExternalLink className="w-4 h-4" />
-               </button>
+               {(() => {
+                 const link = getPrimaryLink(expandedClub);
+                 if (!link) return null;
+                 return (
+                   <a 
+                     href={link}
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className={`w-full py-3 rounded-xl ${is128 ? 'bg-rose-600 hover:bg-rose-500' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 mt-2`}
+                   >
+                      Visit Club Page <ExternalLink className="w-4 h-4" />
+                   </a>
+                 );
+               })()}
             </div>
           </div>
         </div>
